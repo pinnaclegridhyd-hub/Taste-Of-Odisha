@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:ital,wght@0,400..600;1,400..600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+
+  /* Professional Sanctuary Palette */
+  --color-heritage-red: #8B1D1D;    /* Sophisticated Deep Red */
+  --color-heritage-dark: #2D1B1B;   /* Deep Warm Brown (Text) */
+  --color-heritage-bone: #FAF7F2;   /* Warm Beige Background */
+  --color-heritage-gold: #C5A059;   /* Muted Heritage Gold */
+  
+  --color-primary: var(--color-heritage-red);
+  --color-secondary: var(--color-heritage-bone);
+  --color-accent: var(--color-heritage-gold);
+  
+  /* Precision Spacing System */
+  --spacing-section: 4rem;
+  --spacing-card-p: 1.5rem;
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  --animate-fade-in: fade-in 0.5s ease-out forwards;
+  --animate-bounce-subtle: bounce-subtle 3s ease-in-out infinite;
+}
+
+@layer base {
+  body {
+    @apply bg-secondary text-heritage-dark font-sans selection:bg-primary/10 selection:text-primary leading-relaxed;
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+  }
+
+  h1, .h1 { @apply font-serif font-bold text-4xl md:text-6xl tracking-tight leading-tight; }
+  h2, .h2 { @apply font-serif font-semibold text-2xl md:text-4xl tracking-tight leading-tight; }
+  h3, .h3 { @apply font-sans font-medium text-lg md:text-xl tracking-tight; }
+  
+  p, .body-text { @apply font-sans font-normal text-base text-heritage-dark/80 leading-relaxed; }
+  .label-text { @apply font-sans font-normal text-[12px] uppercase tracking-widest text-heritage-dark/60; }
+
+  /* Responsive Constraints */
+  .container-sanctuary {
+    @apply max-w-[1280px] mx-auto px-4 md:px-8;
+  }
+}
+
+@layer components {
+  /* Professional Sanctuary Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-8 py-4 bg-primary text-secondary font-sans font-bold text-sm uppercase tracking-widest rounded-lg transition-all hover:bg-heritage-dark active:scale-95 shadow-sm;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-8 py-4 border border-primary/20 text-primary font-sans font-bold text-sm uppercase tracking-widest rounded-lg transition-all hover:bg-primary/5 active:scale-95;
+  }
+
+  /* Structural Cards */
+  .card-premium {
+    @apply bg-white border border-heritage-dark/5 rounded-xl transition-all hover:shadow-md hover:border-primary/20;
+  }
+
+  /* Navigation Headers */
+  .header-sanctuary {
+    @apply sticky top-0 z-[100] bg-secondary/95 backdrop-blur-md border-b border-heritage-dark/5;
+  }
+
+  /* Image Containers */
+  .aspect-product { @apply aspect-[4/5] relative overflow-hidden bg-[#EAE3D5]; }
+}
+
+/* Scrollbar Cleanliness */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-heritage-red); border-radius: 10px; }
+
+/* Remove broken editorial animations */
+.mask-reveal, .section-bleed, .asymmetric-offset, .asymmetric-reverse { display: contents; }
+
+
+
