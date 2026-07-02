@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import TestimonialsSection from '@/components/TestimonialsSection';
-import HeroCarousel from '@/components/HeroCarousel';
+import HeroCarousel from '@/components/home/HeroCarousel';
 import { useEffect, useState } from 'react';
 import {
   ArrowRight,
@@ -103,57 +103,8 @@ export default function HomePage() {
   return (
     <main className="bg-secondary min-h-screen">
 
-      {/* 01. Elegant Hero Sanctuary */}
-      {/* 01. Elegant Hero Sanctuary */}
-      <section className="relative pt-24 pb-16 md:pt-36 md:pb-20 overflow-hidden bg-heritage-bone border-b border-heritage-dark/5">
-        <div className="container-sanctuary relative z-10 grid grid-cols-1 lg:grid-cols-12 items-center gap-12 md:gap-20">
-          <div className="lg:col-span-6 space-y-8 animate-fade-in">
-            <div className="space-y-4">
-              <span className="label-text text-primary">Legacy of Odisha</span>
-              <h1 className="h1 text-heritage-dark">
-                Ancient Heritage <br />
-                <span className="italic font-normal text-primary">Modern Elegance.</span>
-              </h1>
-            </div>
-
-            <p className="body-text text-lg md:text-xl">
-              Preserving Odisha&apos;s 2,500-year-old traditions through authentic foods, artisanal snacks, and savory mixtures. Crafted by women, delivered to your doorstep.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
-              <Link
-                href="/products"
-                className="btn-primary flex items-center justify-center gap-3 group"
-              >
-                Explore Collection
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </Link>
-              <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-widest text-heritage-dark/60">
-                <Truck className="w-5 h-5 text-primary" /> Free Shipping over ₹999
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-6 relative animate-fade-in">
-            <div className="relative aspect-[4/5] rounded-xl overflow-hidden border border-heritage-dark/5 shadow-md">
-              <Image
-                src="/TASTE%20OF%20ODISHA/SWEET%20VARIETIES%20200gram_-%E2%82%B979/ADISHA/WhatsApp%20Image%202026-05-31%20at%2012.32.02%20AM.jpeg"
-                alt="Taste Of Odisha"
-                fill
-                className="object-cover"
-                priority
-              />
-
-            </div>
-          </div>
-        </div>
-
-        {/* Artistic Gradient */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none"></div>
-      </section>
-
-      {/* 01.5 Promotional Banner Slider */}
-      <section className="py-8 bg-secondary">
+      {/* 01. Elegant Hero Carousel Section */}
+      <section className="relative pt-24 md:pt-28 lg:pt-32 pb-8 md:pb-12 bg-secondary">
         <div className="container-sanctuary">
           <HeroCarousel />
         </div>

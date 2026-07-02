@@ -197,3 +197,97 @@
   @apply text-heritage-dark/80 font-semibold;
 }
 
+/* ===== Products Page — Unified Sidebar ===== */
+aside.no-scrollbar {
+  width: 70px;
+  min-width: 70px;
+}
+
+@media (min-width: 768px) {
+  aside.no-scrollbar {
+    width: 80px;
+    min-width: 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  aside.no-scrollbar {
+    width: 240px;
+    min-width: 240px;
+    border-right: none;
+    border-radius: 12px;
+    border: 1px solid rgba(45,27,27,0.05);
+  }
+  aside.no-scrollbar .sidebar-cat-link {
+    flex-direction: row !important;
+    gap: 12px !important;
+    padding: 14px 16px !important;
+  }
+  aside.no-scrollbar .sidebar-cat-link span {
+    font-size: 14px !important;
+    max-width: none !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+  }
+  aside.no-scrollbar .sidebar-cat-link div {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* Products Grid — responsive columns */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+}
+
+/* Filter selects */
+.products-filter-select {
+  background-color: #fff;
+  border: 1px solid rgba(45,27,27,0.1);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2D1B1B;
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.products-filter-select:hover {
+  border-color: rgba(139,29,29,0.3);
+}
+
+.products-filter-select:focus {
+  border-color: #8B1D1D;
+  box-shadow: 0 0 0 2px rgba(139,29,29,0.1);
+}
+
+/* Products page title responsive */
+@media (max-width: 767px) {
+  .products-page-title {
+    font-size: 18px !important;
+  }
+}
