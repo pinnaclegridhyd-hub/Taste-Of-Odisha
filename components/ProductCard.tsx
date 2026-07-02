@@ -3,7 +3,7 @@
 import { getEffectivePrice } from '@/lib/helpers';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingCart, Star, Zap, ShoppingBag, Check, Layers, Award, ArrowRight } from 'lucide-react';
+import { Heart, Check, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -15,6 +15,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [adding, setAdding] = useState(false);
   const [success, setSuccess] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
 
   let displayPrice = product.price;
   if (product.variants && product.variants.length > 0) {
@@ -24,15 +25,17 @@ export default function ProductCard({ product }: ProductCardProps) {
   const effectivePrice = getEffectivePrice(displayPrice, product.discount);
   const hasDiscount = product.discount && product.discount.value > 0;
   const hasVariants = product.variants && product.variants.length > 0;
-  
-  const discountLabel = hasDiscount 
-    ? (product.discount.type === 'percentage' ? `${product.discount.value}% OFF` : `₹${product.discount.value} OFF`)
-    : null;
+
+  const discountPercent = hasDiscount
+    ? (product.discount.type === 'percentage'
+        ? product.discount.value
+        : Math.round((product.discount.value / displayPrice) * 100))
+    : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (hasVariants) {
       window.location.href = `/products/${product.slug}`;
       return;
@@ -50,10 +53,10 @@ export default function ProductCard({ product }: ProductCardProps) {
       if (existingItem) {
         existingItem.quantity += 1;
       } else {
-        items.push({ 
-          productId, 
-          quantity: 1, 
-          variantName: null, 
+        items.push({
+          productId,
+          quantity: 1,
+          variantName: null,
           price: effectivePrice,
           name: product.name,
           image: product.images[0]
@@ -63,7 +66,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       cart.items = items;
       localStorage.setItem('cart', JSON.stringify(cart));
       window.dispatchEvent(new Event('cart-updated'));
-      
+
       setSuccess(true);
       toast.success(`${product.name} added to bag`);
       setTimeout(() => setSuccess(false), 2000);
@@ -74,84 +77,254 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
-  const isBestSeller = displayPrice > 800 && hasDiscount;
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setWishlisted(!wishlisted);
+    toast.success(wishlisted ? 'Removed from wishlist' : 'Added to wishlist');
+  };
+
   const fallbackImg = '/placeholder.jpg';
 
   return (
-    <div className="card-premium group flex flex-col h-full bg-white overflow-hidden animate-fade-in">
-      <Link href={`/products/${product.slug}`} className="block relative aspect-product">
-        {product.images?.[0] || imgError ? (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#fff',
+        borderRadius: '12px',
+        border: '1px solid rgba(45, 27, 27, 0.05)',
+        overflow: 'hidden',
+        isolation: 'isolate',
+        boxSizing: 'border-box',
+        transition: 'all 0.3s ease',
+      }}
+      className="group hover:shadow-md hover:border-primary/20"
+    >
+      {/* ====== IMAGE AREA — position:relative container for absolute children ====== */}
+      <Link
+        href={`/products/${product.slug}`}
+        style={{
+          display: 'block',
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '1 / 1',
+          backgroundColor: '#F8F6F3',
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}
+      >
+        {/* Product Image */}
+        {(product.images?.[0] && !imgError) ? (
           <Image
-            src={imgError ? fallbackImg : (product.images[0] || fallbackImg)}
+            src={product.images[0]}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            style={{ objectFit: 'contain', padding: '16px' }}
             sizes="(max-width: 768px) 50vw, 25vw"
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-heritage-bone">
-             <span className="text-[10px] uppercase font-semibold tracking-widest text-heritage-dark/30">Odisha Piece</span>
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F5F0E8' }}>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(45,27,27,0.3)' }}>No Image</span>
           </div>
         )}
 
-        {/* Status Badges - Subtle & Clean */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-           {isBestSeller && (
-             <span className="bg-heritage-dark text-white px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
-                <Zap className="w-3 h-3 text-heritage-gold fill-heritage-gold stroke-[1.5]" /> Best Seller
-             </span>
-           )}
-           {discountLabel && (
-             <span className="bg-heritage-red text-white px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-widest shadow-sm">
-                {discountLabel}
-             </span>
-           )}
-        </div>
+        {/* Wishlist Heart — top-left of image area */}
+        <button
+          onClick={handleWishlist}
+          aria-label="Add to wishlist"
+          style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            zIndex: 5,
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+            transition: 'all 0.2s',
+          }}
+        >
+          <Heart
+            className={`w-4 h-4 ${wishlisted ? 'fill-red-600 text-red-600' : 'text-gray-400'}`}
+            style={{ transition: 'color 0.2s, fill 0.2s' }}
+          />
+        </button>
 
+        {/* Discount Badge — top-left below heart */}
+        {hasDiscount && (
+          <span
+            style={{
+              position: 'absolute',
+              top: '48px',
+              left: '10px',
+              zIndex: 5,
+              backgroundColor: '#8B1D1D',
+              color: '#fff',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontSize: '10px',
+              fontWeight: 700,
+              lineHeight: '16px',
+            }}
+          >
+            {discountPercent}% OFF
+          </span>
+        )}
+
+        {/* ADD Button — bottom-right of image area */}
+        {product.inStock && (
+          <button
+            onClick={handleAddToCart}
+            disabled={adding}
+            aria-label={hasVariants ? 'View Options' : 'Add to Cart'}
+            style={{
+              position: 'absolute',
+              bottom: '10px',
+              right: '10px',
+              zIndex: 5,
+              padding: '5px 16px',
+              fontSize: '12px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              border: success ? '2px solid #16a34a' : '2px solid #8B1D1D',
+              borderRadius: '6px',
+              backgroundColor: success ? '#16a34a' : '#fff',
+              color: success ? '#fff' : '#8B1D1D',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              lineHeight: '20px',
+            }}
+            className="hover:bg-primary hover:text-white active:scale-95"
+          >
+            {success ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Check style={{ width: '14px', height: '14px' }} /> Added
+              </span>
+            ) : (
+              'ADD'
+            )}
+          </button>
+        )}
+
+        {/* SOLD Overlay */}
         {!product.inStock && (
-          <div className="absolute inset-0 bg-heritage-bone/80 backdrop-blur-[2px] flex items-center justify-center z-20">
-            <span className="text-heritage-dark/40 text-[10px] font-bold uppercase tracking-widest px-4 py-2 border border-heritage-dark/10 rounded-lg">Out of stock</span>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 10,
+              backgroundColor: 'rgba(255,255,255,0.75)',
+              backdropFilter: 'blur(1px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '12px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.15em',
+                color: 'rgba(45,27,27,0.4)',
+                padding: '6px 16px',
+                border: '1px solid rgba(45,27,27,0.15)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255,255,255,0.8)',
+              }}
+            >
+              SOLD
+            </span>
           </div>
         )}
       </Link>
 
-      {/* Content Section - Structured Clarity */}
-      <div className="p-4 md:p-5 flex flex-col flex-1">
-        <div className="mb-2">
-           <span className="text-[10px] font-semibold uppercase tracking-widest text-primary/70">{product.category}</span>
+      {/* ====== INFO AREA — normal flow, no absolute positioning ====== */}
+      <div
+        style={{
+          padding: '12px 14px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+          flexGrow: 1,
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* Price Row */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '16px', fontWeight: 700, color: '#8B1D1D' }}>
+            ₹ {effectivePrice}
+          </span>
+          {hasDiscount && (
+            <span style={{ fontSize: '12px', color: '#aaa', textDecoration: 'line-through' }}>
+              ₹{displayPrice}
+            </span>
+          )}
         </div>
-        
-        <Link href={`/products/${product.slug}`} className="block mb-4">
-          <h3 className="text-base md:text-lg font-serif font-semibold text-heritage-dark leading-snug group-hover:text-primary transition-colors line-clamp-2">
+
+        {/* Discount % */}
+        {hasDiscount && (
+          <span style={{ fontSize: '10px', fontWeight: 700, color: '#16a34a' }}>
+            {discountPercent}% OFF
+          </span>
+        )}
+
+        {/* Product Name — 2 lines max */}
+        <Link href={`/products/${product.slug}`}>
+          <h3
+            style={{
+              fontSize: '13px',
+              fontWeight: 500,
+              color: '#2D1B1B',
+              lineHeight: '1.4',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minHeight: '36px',
+              margin: 0,
+              transition: 'color 0.2s',
+            }}
+            className="group-hover:text-primary"
+          >
             {product.name}
           </h3>
         </Link>
 
-        {/* Price & Action - Standard Flow */}
-        <div className="mt-auto pt-4 border-t border-heritage-dark/5 flex items-center justify-between gap-4">
-           <div className="flex flex-col">
-              <div className="flex items-baseline gap-2">
-                 <span className="text-lg md:text-xl font-bold text-heritage-dark">
-                    ₹{effectivePrice}
-                 </span>
-                 {hasDiscount && (
-                    <span className="text-xs text-heritage-dark/30 line-through font-medium">₹{displayPrice}</span>
-                 )}
-              </div>
-           </div>
-           
-           <button 
-              onClick={handleAddToCart}
-              disabled={!product.inStock || adding}
-              className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all disabled:opacity-20 active:scale-90 ${success ? 'bg-green-600 text-white' : 'bg-heritage-dark text-white hover:bg-primary shadow-sm hover:shadow-md'}`}
-              aria-label={hasVariants ? 'View Item' : 'Add to Cart'}
-           >
-              {success ? <Check className="w-4 h-4" /> : hasVariants ? <ArrowRight className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
-           </button>
-        </div>
+        {/* Variant / Weight Selector */}
+        {hasVariants && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+            <select
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                fontSize: '11px',
+                color: 'rgba(45,27,27,0.5)',
+                border: 'none',
+                background: 'transparent',
+                outline: 'none',
+                fontWeight: 500,
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              {product.variants.map((v: any, i: number) => (
+                <option key={i} value={v.name}>{v.name}</option>
+              ))}
+            </select>
+            <ChevronDown style={{ width: '12px', height: '12px', color: 'rgba(45,27,27,0.3)' }} />
+          </div>
+        )}
       </div>
     </div>
   );
 }
-

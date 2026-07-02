@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import TestimonialsSection from '@/components/TestimonialsSection';
+import HeroCarousel from '@/components/HeroCarousel';
 import { useEffect, useState } from 'react';
 import {
   ArrowRight,
@@ -87,7 +88,11 @@ export default function HomePage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setDynamicCategories(data.data.slice(0, 4));
+          // Select 8 distinct categories for a perfect 2x4 grid layout
+          const preferredSlugs = ['sweets', 'achar', 'muruku', 'mixture', 'dry-delight', 'masala-spices', 'noodles', 'papaad'];
+          const sorted = data.data.filter((cat: any) => preferredSlugs.includes(cat.slug))
+            .sort((a: any, b: any) => preferredSlugs.indexOf(a.slug) - preferredSlugs.indexOf(b.slug));
+          setDynamicCategories(sorted.length > 0 ? sorted.slice(0, 8) : data.data.slice(0, 8));
         }
       })
       .catch(err => console.error("Categories fetch failed", err))
@@ -99,7 +104,8 @@ export default function HomePage() {
     <main className="bg-secondary min-h-screen">
 
       {/* 01. Elegant Hero Sanctuary */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-heritage-bone">
+      {/* 01. Elegant Hero Sanctuary */}
+      <section className="relative pt-24 pb-16 md:pt-36 md:pb-20 overflow-hidden bg-heritage-bone border-b border-heritage-dark/5">
         <div className="container-sanctuary relative z-10 grid grid-cols-1 lg:grid-cols-12 items-center gap-12 md:gap-20">
           <div className="lg:col-span-6 space-y-8 animate-fade-in">
             <div className="space-y-4">
@@ -129,7 +135,7 @@ export default function HomePage() {
           </div>
 
           <div className="lg:col-span-6 relative animate-fade-in">
-            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-heritage-dark/5 shadow-md">
+            <div className="relative aspect-[4/5] rounded-xl overflow-hidden border border-heritage-dark/5 shadow-md">
               <Image
                 src="/TASTE%20OF%20ODISHA/SWEET%20VARIETIES%20200gram_-%E2%82%B979/ADISHA/WhatsApp%20Image%202026-05-31%20at%2012.32.02%20AM.jpeg"
                 alt="Taste Of Odisha"
@@ -137,13 +143,7 @@ export default function HomePage() {
                 className="object-cover"
                 priority
               />
-              <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-md p-6 rounded-xl border border-primary/10 shadow-lg">
-                <div className="flex items-center gap-3 mb-2">
-                  <Award className="w-5 h-5 text-primary" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-heritage-dark">G.I. Certified</span>
-                </div>
-                <p className="font-serif italic text-lg text-heritage-dark">100% Direct Origin</p>
-              </div>
+
             </div>
           </div>
         </div>
@@ -152,15 +152,24 @@ export default function HomePage() {
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none"></div>
       </section>
 
-      {/* 02. Structured Category Grid */}
-      <section className="py-20 bg-white">
+      {/* 01.5 Promotional Banner Slider */}
+      <section className="py-8 bg-secondary">
         <div className="container-sanctuary">
-          <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
-            <div className="space-y-2">
-              <span className="label-text">Explore the Sanctuary</span>
-              <h2 className="h2 lowercase first-letter:uppercase">the departments.</h2>
+          <HeroCarousel />
+        </div>
+      </section>
+
+      {/* 02. Structured Category Grid */}
+      <section className="py-12 bg-white">
+        <div className="container-sanctuary">
+          <div className="flex justify-between items-end gap-6 mb-8">
+            <div className="space-y-1">
+              <span className="label-text text-primary">Explore the Sanctuary</span>
+              <h2 className="h2 lowercase first-letter:uppercase text-heritage-dark">the departments.</h2>
             </div>
-            <p className="body-text text-sm hidden md:block">Hand-picked selections of Odisha&apos;s finest</p>
+            <Link href="/products" className="text-xs font-bold uppercase tracking-widest text-primary border-b border-primary/20 pb-1">
+              Browse All
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
@@ -168,7 +177,7 @@ export default function HomePage() {
               <Link
                 key={cat._id || i}
                 href={`/products?category=${cat.slug}`}
-                className="group relative h-64 md:h-80 rounded-2xl overflow-hidden border border-heritage-dark/5 hover:border-primary/20 transition-all shadow-sm"
+                className="group relative h-64 md:h-80 rounded-xl overflow-hidden border border-heritage-dark/5 hover:border-primary/20 hover:shadow-md transition-all shadow-sm"
               >
                 {cat.image ? (
                   <Image
@@ -194,7 +203,7 @@ export default function HomePage() {
             ))}
             {!loadingCats && dynamicCategories.length === 0 && (
               [1, 2, 3, 4].map((n) => (
-                <div key={n} className="h-64 md:h-80 rounded-2xl bg-heritage-bone/50 animate-pulse"></div>
+                <div key={n} className="h-64 md:h-80 rounded-xl bg-heritage-bone/50 animate-pulse"></div>
               ))
             )}
           </div>
@@ -202,12 +211,12 @@ export default function HomePage() {
       </section>
 
       {/* 03. Calm Narrative - Pure Focus */}
-      <section className="py-24 bg-heritage-bone/20">
+      <section className="py-12 bg-heritage-bone/20">
         <div className="container-sanctuary">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="relative rounded-2xl overflow-hidden aspect-[4/5] border border-heritage-dark/5 shadow-sm">
+            <div className="relative rounded-xl overflow-hidden aspect-[4/5] border border-heritage-dark/5 shadow-sm">
               <Image
-                src="/TASTE%20OF%20ODISHA/BERHAMPUR%20ACHAR_-500gram%20%20%E2%82%B9199/MIX%20SWEET%20ACHAR/WhatsApp%20Image%202026-05-30%20at%2012.57.41%20AM.jpeg"
+                src="/TASTE%20OF%20ODISHA/BERHAMPUR%20ACHAR_-500gram%20%20%E2%82%B9249/MIX%20SWEET%20ACHAR/file_00000000702071f59e0e244874ece619.png"
                 alt="Artisan Story"
                 fill
                 className="object-cover"
@@ -215,7 +224,7 @@ export default function HomePage() {
             </div>
             <div className="space-y-10 lg:pl-10">
               <div className="space-y-4">
-                <span className="label-text">The Artisan Story</span>
+                <span className="label-text text-primary">The Artisan Story</span>
                 <h2 className="h2">Sun, Soil, <br /><span className="text-primary italic font-normal">and Soul.</span></h2>
               </div>
               <p className="body-text text-lg">
@@ -232,11 +241,11 @@ export default function HomePage() {
       </section>
 
       {/* 04. 2-Column Responsive Boutique Grid */}
-      <section className="py-24 bg-white">
+      <section className="py-12 bg-white">
         <div className="container-sanctuary">
-          <div className="flex items-end justify-between gap-6 mb-16">
-            <div className="space-y-2">
-              <span className="label-text">The Curation</span>
+          <div className="flex items-end justify-between gap-6 mb-8">
+            <div className="space-y-1">
+              <span className="label-text text-primary">The Curation</span>
               <h2 className="h2">seasonal <span className="text-primary italic font-normal">heritage.</span></h2>
             </div>
             <Link href="/products" className="text-xs font-bold uppercase tracking-widest text-primary border-b border-primary/20 pb-1">
@@ -255,9 +264,9 @@ export default function HomePage() {
       <TestimonialsSection />
 
       {/* 06. Professional Final Call */}
-      <section className="py-24 bg-heritage-bone">
+      <section className="py-12 bg-heritage-bone">
         <div className="container-sanctuary">
-          <div className="bg-heritage-red rounded-2xl p-10 md:p-20 text-center md:text-left relative overflow-hidden shadow-lg">
+          <div className="bg-heritage-red rounded-xl p-10 md:p-20 text-center md:text-left relative overflow-hidden shadow-lg">
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 items-center gap-12">
               <div className="space-y-6">
                 <h2 className="h1 text-white lowercase first-letter:uppercase">Gift the <span className="italic font-normal">soul of odisha.</span></h2>

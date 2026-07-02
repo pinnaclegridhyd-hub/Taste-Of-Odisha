@@ -9,6 +9,7 @@ import { validateStock } from '@/lib/pricing';
 import { getClientIP, createOrderLimiter } from '@/lib/middleware';
 import { VALID_COUPONS, calculateCartPrice } from '@/lib/pricing';
 import { formatPrice } from '@/lib/helpers';
+import { COD_ADVANCE_AMOUNT } from '@/lib/constants';
 
 /**
  * POST /api/create-order
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const body = await request.json();
-    const { items, shippingInfo, phoneNumber, couponCode } = body;
+    const { items, shippingInfo, phoneNumber, couponCode, paymentMethod = 'online' } = body;
 
     // Validate input
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -45,6 +46,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (paymentMethod !== 'online' && paymentMethod !== 'cod') {
+      return NextResponse.json(
+        { error: 'Invalid payment method selection' },
+        { status: 400 }
+      );
+    }
+
     // Fetch products and validate stock
     const productIds = items.map((item: any) => item.productId);
     const products = await Product.find({ _id: { $in: productIds } });
@@ -53,6 +61,14 @@ export async function POST(request: NextRequest) {
 
     const pricingBreakdown = await calculateCartPrice(items, productMap, couponCode);
     const { subtotal, deliveryCharge, discount, total } = pricingBreakdown;
+
+    // Validate COD threshold
+    if (paymentMethod === 'cod' && total <= COD_ADVANCE_AMOUNT) {
+      return NextResponse.json(
+        { error: `Cash on Delivery is only available for orders above ₹${COD_ADVANCE_AMOUNT}. Please choose Pay Online.` },
+        { status: 400 }
+      );
+    }
 
     const orderItems: any[] = [];
     for (const item of items) {
@@ -83,11 +99,14 @@ export async function POST(request: NextRequest) {
     // Generate order ID
     const orderId = generateOrderId();
 
+    // Determine the amount to be paid now via Razorpay
+    const paymentAmountNow = paymentMethod === 'cod' ? COD_ADVANCE_AMOUNT : total;
+
     // Create Razorpay order
     let razorpayOrder;
     try {
       razorpayOrder = await createRazorpayOrder(
-        total,
+        paymentAmountNow,
         orderId,
         undefined,
         phoneNumber
@@ -115,6 +134,9 @@ export async function POST(request: NextRequest) {
       couponCode: couponCode?.toUpperCase() || null,
       status: 'pending',
       paymentStatus: 'pending',
+      paymentMethod,
+      advancePaid: 0,
+      balanceDue: total, // Set to total before payment confirmation
       razorpayOrderId: razorpayOrder.id,
       shippingAddress: shippingInfo,
       createdAt: new Date(),
@@ -127,6 +149,8 @@ export async function POST(request: NextRequest) {
       total,
       itemCount: orderItems.length,
       razorpayOrderId: razorpayOrder.id,
+      paymentMethod,
+      paymentAmountNow,
     });
 
     return NextResponse.json({
@@ -134,14 +158,17 @@ export async function POST(request: NextRequest) {
       data: {
         orderId: orderData.orderId,
         razorpayOrderId: razorpayOrder.id,
-        amount: total,
+        amount: paymentAmountNow,
+        paymentMethod,
+        total,
         key: process.env.RAZORPAY_KEY_ID,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     log.error('Failed to create order', error);
+    console.error('OUTER ERROR IN CREATE-ORDER:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create order' },
+      { success: false, error: 'Failed to create order', details: error?.message || String(error) },
       { status: 500 }
     );
   }

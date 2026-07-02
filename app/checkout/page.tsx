@@ -7,17 +7,15 @@ import Link from 'next/link';
 import {
   ArrowLeft,
   ShieldCheck,
-  Truck,
   MapPin,
   User,
   Phone,
   CreditCard,
   Lock,
-  ChevronRight,
   Zap
 } from 'lucide-react';
 import { getEffectivePrice } from '@/lib/helpers';
-import { toast } from 'sonner';
+import { COD_ADVANCE_AMOUNT } from '@/lib/constants';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -26,7 +24,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [couponCode, setCouponCode] = useState('');
-  const [discount, setDiscount] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online');
 
   const [formData, setFormData] = useState<ShippingInfo>({
     name: '',
@@ -77,7 +75,6 @@ export default function CheckoutPage() {
     const savedCoupon = localStorage.getItem('appliedCoupon');
     if (savedCoupon) {
       setCouponCode(savedCoupon);
-      // We'll re-validate shortly or use the summary logic
     }
   }, [router]);
 
@@ -85,6 +82,22 @@ export default function CheckoutPage() {
     return sum + (getEffectivePrice(item.effectiveBasePrice, item.discount) * item.quantity);
   }, 0);
   const deliveryCharge = subtotal >= 999 ? 0 : 99;
+
+  // Coupon estimation on client
+  const couponRates: Record<string, number> = {
+    'ODISHA10': 0.1,
+    'HERITAGE20': 0.2,
+  };
+  const couponDiscount = couponRates[couponCode.toUpperCase()] ? subtotal * couponRates[couponCode.toUpperCase()] : 0;
+  const estimatedTotal = Math.max(0, subtotal - couponDiscount + deliveryCharge);
+  const isCodAllowed = estimatedTotal > COD_ADVANCE_AMOUNT;
+
+  // Auto-switch to online if total falls below threshold
+  useEffect(() => {
+    if (!isCodAllowed && paymentMethod === 'cod') {
+      setPaymentMethod('online');
+    }
+  }, [isCodAllowed, paymentMethod]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -102,28 +115,41 @@ export default function CheckoutPage() {
         setSubmitting(false);
         return;
       }
+
+      if (paymentMethod === 'cod' && !isCodAllowed) {
+        setError(`Cash on Delivery is only available for orders above ₹${COD_ADVANCE_AMOUNT}.`);
+        setSubmitting(false);
+        return;
+      }
+
       const cart = JSON.parse(localStorage.getItem('cart') || '{"items":[]}');
       const payload: CheckoutPayload = {
         items: cart.items,
         shippingInfo: { ...formData, mobile: phoneNumber },
         phoneNumber,
         couponCode: couponCode || undefined,
+        paymentMethod,
       };
+
       const res = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Failed to create your order');
+        setError(data.details ? `${data.error} (${data.details})` : (data.error || 'Failed to create your order'));
         setSubmitting(false);
         return;
       }
+
       localStorage.setItem('currentOrder', JSON.stringify({
         orderId: data.data.orderId,
         razorpayOrderId: data.data.razorpayOrderId,
         amount: data.data.amount,
+        paymentMethod: data.data.paymentMethod,
+        total: data.data.total,
       }));
       router.push('/payment');
     } catch (err) {
@@ -213,6 +239,70 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </section>
+
+              {/* PAYMENT OPTION SELECTION */}
+              <section className="bg-white p-8 md:p-12 rounded-xl border border-heritage-dark/5 shadow-sm">
+                <div className="flex items-center gap-4 mb-10">
+                  <CreditCard className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-bold text-heritage-dark px-4 border-l-2 border-primary">Payment Option</h2>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Pay Online */}
+                    <label className={`flex items-start gap-4 p-6 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-primary bg-primary/5' : 'border-heritage-dark/5 bg-white hover:border-heritage-dark/10'}`}>
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="online"
+                        checked={paymentMethod === 'online'}
+                        onChange={() => setPaymentMethod('online')}
+                        className="mt-1 accent-primary"
+                      />
+                      <div>
+                        <span className="block text-sm font-bold text-heritage-dark uppercase tracking-wide">Pay Online (Full)</span>
+                        <span className="block text-xs text-heritage-dark/50 mt-1">Pay full amount safely using online gateway.</span>
+                      </div>
+                    </label>
+
+                    {/* Cash on Delivery */}
+                    <label className={`flex items-start gap-4 p-6 rounded-xl border-2 transition-all ${!isCodAllowed ? 'opacity-50 cursor-not-allowed border-heritage-dark/5 bg-gray-50' : paymentMethod === 'cod' ? 'border-primary bg-primary/5 cursor-pointer' : 'border-heritage-dark/5 bg-white hover:border-heritage-dark/10 cursor-pointer'}`}>
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        checked={paymentMethod === 'cod'}
+                        disabled={!isCodAllowed}
+                        onChange={() => {
+                          if (isCodAllowed) setPaymentMethod('cod');
+                        }}
+                        className="mt-1 accent-primary"
+                      />
+                      <div>
+                        <span className="block text-sm font-bold text-heritage-dark uppercase tracking-wide">Cash on Delivery</span>
+                        <span className="block text-xs text-heritage-dark/50 mt-1">
+                          {isCodAllowed 
+                            ? `Pay ₹${COD_ADVANCE_AMOUNT} advance online, balance at delivery.`
+                            : `Only available for orders above ₹${COD_ADVANCE_AMOUNT}.`}
+                        </span>
+                      </div>
+                    </label>
+                  </div>
+
+                  {paymentMethod === 'cod' && isCodAllowed && (
+                    <div className="bg-primary/5 border border-primary/10 rounded-xl p-6 text-sm text-heritage-dark">
+                      <p className="font-bold text-primary mb-1">COD Partial Advance Payment Rule:</p>
+                      <p className="text-xs text-heritage-dark/80 mb-2">
+                        You need to pay <strong className="text-primary font-bold">₹{COD_ADVANCE_AMOUNT} now</strong> as a secure advance. The remaining balance will be collected in cash upon delivery.
+                      </p>
+                      <div className="flex justify-between border-t border-primary/15 pt-2 mt-2 text-xs font-bold text-heritage-dark">
+                        <span>Balance collected at delivery:</span>
+                        <span>₹{(estimatedTotal - COD_ADVANCE_AMOUNT).toFixed(0)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
             </form>
           </div>
 
@@ -260,15 +350,33 @@ export default function CheckoutPage() {
                     {deliveryCharge === 0 ? 'Free Shipping' : `₹${deliveryCharge}`}
                   </span>
                 </div>
-                <div className="flex justify-between items-center pt-6 border-t border-heritage-dark/5">
+
+                <div className="flex justify-between items-center pt-4 border-t border-heritage-dark/5">
                   <span className="label-text">Order Total</span>
-                  <span className="text-[9px] font-bold text-heritage-dark/20 uppercase tracking-widest mr-2">(Re-calculating on secure server)</span>
-                  <span className="text-3xl font-bold text-heritage-dark italic">Finalized at Pay</span>
+                  <span className="text-lg font-bold text-heritage-dark">₹{estimatedTotal.toFixed(0)}</span>
                 </div>
+
+                {paymentMethod === 'cod' ? (
+                  <div className="space-y-2 border-t border-dashed border-heritage-dark/10 pt-4">
+                    <div className="flex justify-between items-center text-xs font-bold text-primary">
+                      <span>Advance Pay Now (Online)</span>
+                      <span>₹{COD_ADVANCE_AMOUNT}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs font-bold text-heritage-dark/60">
+                      <span>Balance Due at Delivery (Cash)</span>
+                      <span>₹{(estimatedTotal - COD_ADVANCE_AMOUNT).toFixed(0)}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center text-xs font-bold text-primary border-t border-dashed border-heritage-dark/10 pt-4">
+                    <span>Amount Due Now (Online)</span>
+                    <span>₹{estimatedTotal.toFixed(0)}</span>
+                  </div>
+                )}
               </div>
 
               <button onClick={() => handleSubmit(null as any)} disabled={submitting} className="w-full btn-primary py-5 rounded-lg flex items-center justify-center gap-3 disabled:opacity-50">
-                {submitting ? 'Processing...' : <><Lock className="w-4 h-4" /> Buy Now</>}
+                {submitting ? 'Processing...' : <><Lock className="w-4 h-4" /> {paymentMethod === 'cod' ? 'Pay Advance & Order' : 'Pay & Place Order'}</>}
               </button>
 
               <div className="grid grid-cols-2 gap-4 pt-8 border-t border-heritage-dark/5 opacity-30">

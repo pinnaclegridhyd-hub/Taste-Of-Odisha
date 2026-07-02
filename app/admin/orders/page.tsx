@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { IOrder } from '@/models/Order';
-import { User, Package, Clock, ArrowLeft, AlertCircle } from 'lucide-react';
+import { User, Package, Clock, ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function AdminOrdersPage() {
@@ -77,6 +77,36 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handlePaymentStatusChange = async (orderId: string, newPaymentStatus: string) => {
+    try {
+      setUpdatingOrderId(orderId);
+      const res = await fetch('/api/admin/orders', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminKey}`,
+        },
+        body: JSON.stringify({ orderId, paymentStatus: newPaymentStatus }),
+      });
+
+      if (res.ok) {
+        setOrders(
+          orders.map((o) =>
+            o.orderId === orderId
+              ? { ...o, paymentStatus: newPaymentStatus as any, balanceDue: newPaymentStatus === 'fully_paid' ? 0 : o.balanceDue }
+              : o
+          )
+        );
+      } else {
+        setError('Failed to update payment status');
+      }
+    } catch (err) {
+      setError('Update connection error');
+    } finally {
+      setUpdatingOrderId('');
+    }
+  };
+
   if (loading) {
     return (
       <main className="min-h-screen bg-secondary flex items-center justify-center">
@@ -124,119 +154,161 @@ export default function AdminOrdersPage() {
           </div>
         ) : (
           <div className="space-y-10">
-            {orders.map((order) => (
-              <div key={order._id?.toString()} className="bg-white rounded-xl p-8 md:p-12 border border-heritage-dark/5 shadow-sm hover:shadow-md transition-all overflow-hidden relative">
-                <div className="absolute top-0 left-0 w-1 h-full bg-primary/20"></div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                  {/* Identity */}
-                  <div className="lg:col-span-3 space-y-8">
-                    <div className="space-y-1">
-                       <span className="label-text opacity-30">Order ID</span>
-                       <p className="text-lg font-bold text-heritage-dark tracking-widest uppercase">{order.orderId}</p>
+            {orders.map((order) => {
+              const isPaid = order.paymentStatus === 'paid' || order.paymentStatus === 'fully_paid';
+              const isAdvancePaid = order.paymentStatus === 'advance_paid';
+              const isOrderActionable = isPaid || isAdvancePaid;
+
+              return (
+                <div key={order._id?.toString()} className="bg-white rounded-xl p-8 md:p-12 border border-heritage-dark/5 shadow-sm hover:shadow-md transition-all overflow-hidden relative">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-primary/20"></div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    {/* Identity */}
+                    <div className="lg:col-span-3 space-y-8">
+                      <div className="space-y-1">
+                         <span className="label-text opacity-30">Order ID</span>
+                         <p className="text-lg font-bold text-heritage-dark tracking-widest uppercase">{order.orderId}</p>
+                      </div>
+                      <div className="space-y-4">
+                         <div className="flex items-center gap-3 label-text opacity-30">
+                            <User className="w-3.5 h-3.5" /> Customer
+                         </div>
+                         <div className="space-y-1">
+                            <p className="text-sm font-bold text-heritage-dark">{order.shippingAddress?.name}</p>
+                            <p className="text-xs text-heritage-dark/50 italic">{order.phoneNumber}</p>
+                         </div>
+                      </div>
                     </div>
-                    <div className="space-y-4">
-                       <div className="flex items-center gap-3 label-text opacity-30">
-                          <User className="w-3.5 h-3.5" /> Customer
-                       </div>
-                       <div className="space-y-1">
-                          <p className="text-sm font-bold text-heritage-dark">{order.shippingAddress?.name}</p>
-                          <p className="text-xs text-heritage-dark/50 italic">{order.phoneNumber}</p>
-                       </div>
+
+                    {/* Financials & Status */}
+                    <div className="lg:col-span-5 space-y-10">
+                      <div className="flex justify-between items-end border-b border-heritage-dark/5 pb-8">
+                         <div className="space-y-1">
+                            <span className="label-text opacity-30">Total</span>
+                            <p className="text-4xl font-serif font-bold text-heritage-dark italic tracking-tighter">
+                              &#8377;{(order.total ?? 0).toFixed(0)}
+                            </p>
+                         </div>
+                         <div className="text-right space-y-1">
+                            <span className="label-text opacity-30 mb-2 block">Payment ({order.paymentMethod === 'cod' ? 'COD' : 'ONLINE'})</span>
+                            <div className="flex flex-col items-end gap-1">
+                              <span className={`px-4 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${
+                                isPaid
+                                  ? 'bg-green-50 text-green-700 border-green-100'
+                                  : isAdvancePaid
+                                    ? 'bg-amber-50 text-amber-700 border-amber-100'
+                                    : 'bg-heritage-red/5 text-heritage-red border-heritage-red/10'
+                              }`}>
+                                {order.paymentStatus === 'fully_paid' ? 'fully paid' : order.paymentStatus === 'advance_paid' ? 'advance paid' : order.paymentStatus}
+                              </span>
+                              {order.paymentMethod === 'cod' && (
+                                <div className="text-[10px] font-bold mt-1 text-right">
+                                  {isAdvancePaid ? (
+                                    <span className="text-amber-700">COD — Balance Due: ₹{order.balanceDue}</span>
+                                  ) : order.paymentStatus === 'fully_paid' ? (
+                                    <span className="text-green-700">COD — Fully Collected</span>
+                                  ) : (
+                                    <span className="text-heritage-red">COD — Pending Advance</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                         </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-6 p-6 bg-heritage-bone/30 rounded-xl border border-heritage-dark/5">
+                         <div className="flex items-center gap-3 label-text text-heritage-dark/60">
+                            <div className={`w-2 h-2 rounded-full animate-pulse ${order.status !== 'delivered' ? 'bg-primary' : 'bg-green-500'}`}></div>
+                            {order.status}
+                         </div>
+                         
+                         <div className="flex items-center gap-3">
+                           {/* Mark Balance Collected Button */}
+                           {order.paymentMethod === 'cod' && isAdvancePaid && (
+                             <div className="relative">
+                               {updatingOrderId === order.orderId ? (
+                                 <LoadingSpinner className="w-4 h-4 border-primary/30 border-t-primary" />
+                               ) : (
+                                 <button
+                                   onClick={() => handlePaymentStatusChange(order.orderId, 'fully_paid')}
+                                   className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-3 py-2 text-[9px] font-bold uppercase tracking-widest transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+                                 >
+                                   <CheckCircle2 className="w-3.5 h-3.5" /> Collect ₹{order.balanceDue}
+                                 </button>
+                               )}
+                             </div>
+                           )}
+
+                           {/* Order Status Update Dropdown */}
+                           {isOrderActionable && order.status !== 'delivered' && (
+                              <div className="relative">
+                                 {updatingOrderId === order.orderId ? (
+                                   <LoadingSpinner className="w-5 h-5 border-primary/30 border-t-primary" />
+                                 ) : (
+                                   <select
+                                     value={order.status}
+                                     onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
+                                     className="bg-white border border-heritage-dark/10 rounded-lg px-4 py-2 text-[10px] font-bold uppercase tracking-widest focus:ring-4 focus:ring-primary/5 outline-none cursor-pointer hover:border-primary transition-all"
+                                   >
+                                     <option value="">Update Status</option>
+                                     <option value="processing">Processing</option>
+                                     <option value="shipped">Shipped</option>
+                                     <option value="delivered">Delivered</option>
+                                     <option value="cancelled">Cancelled</option>
+                                   </select>
+                                 )}
+                              </div>
+                           )}
+                         </div>
+                      </div>
+                    </div>
+
+                    {/* Destination */}
+                    <div className="lg:col-span-4 bg-heritage-dark p-8 rounded-xl text-heritage-bone relative overflow-hidden">
+                      <div className="relative z-10 space-y-6">
+                         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-heritage-gold border-b border-heritage-gold/20 pb-4 block">Shipping Address</span>
+                         <div className="space-y-2">
+                            <p className="text-xs font-medium uppercase tracking-widest opacity-85 leading-relaxed text-heritage-bone">
+                              {order.shippingAddress?.addressLine}<br />
+                              {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
+                            </p>
+                            <p className="text-xs font-bold text-heritage-gold pt-2">{order.shippingAddress?.mobile}</p>
+                         </div>
+                      </div>
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
                     </div>
                   </div>
 
-                  {/* Financials & Status */}
-                  <div className="lg:col-span-5 space-y-10">
-                    <div className="flex justify-between items-end border-b border-heritage-dark/5 pb-8">
-                       <div className="space-y-1">
-                          <span className="label-text opacity-30">Total</span>
-                          <p className="text-4xl font-serif font-bold text-heritage-dark italic tracking-tighter">
-                            &#8377;{(order.total ?? 0).toFixed(0)}
-                          </p>
-                       </div>
-                       <div className="text-right space-y-1">
-                          <span className="label-text opacity-30 mb-2 block">Payment</span>
-                          <span className={`px-4 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${
-                            order.paymentStatus === 'paid' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-heritage-red/5 text-heritage-red border-heritage-red/10'
-                          }`}>
-                            {order.paymentStatus}
-                          </span>
-                       </div>
+                  {/* Items */}
+                  <div className="mt-12 pt-10 border-t border-heritage-dark/5 space-y-6">
+                    <div className="flex items-center gap-3 label-text opacity-30">
+                       <Package className="w-3.5 h-3.5" /> Order Items
                     </div>
-
-                    <div className="flex items-center justify-between gap-6 p-6 bg-heritage-bone/30 rounded-xl border border-heritage-dark/5">
-                       <div className="flex items-center gap-3 label-text text-heritage-dark/60">
-                          <div className={`w-2 h-2 rounded-full animate-pulse ${order.status !== 'delivered' ? 'bg-primary' : 'bg-green-500'}`}></div>
-                          {order.status}
-                       </div>
-                       
-                       {order.paymentStatus === 'paid' && order.status !== 'delivered' && (
-                          <div className="relative">
-                             {updatingOrderId === order.orderId ? (
-                               <LoadingSpinner className="w-5 h-5 border-primary/30 border-t-primary" />
-                             ) : (
-                               <select
-                                 value={order.status}
-                                 onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
-                                 className="bg-white border border-heritage-dark/10 rounded-lg px-4 py-2 text-[10px] font-bold uppercase tracking-widest focus:ring-4 focus:ring-primary/5 outline-none cursor-pointer hover:border-primary transition-all"
-                               >
-                                 <option value="">Update Status</option>
-                                 <option value="processing">Processing</option>
-                                 <option value="shipped">Shipped</option>
-                                 <option value="delivered">Delivered</option>
-                                 <option value="cancelled">Cancelled</option>
-                               </select>
-                             )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                       {(order.items ?? []).map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center bg-heritage-bone/30 p-4 rounded-lg border border-heritage-dark/5">
+                             <span className="text-[11px] font-bold text-heritage-dark uppercase tracking-widest truncate flex-1 pr-4">{item.name}</span>
+                             <span className="text-[10px] font-bold text-primary">QTY {item.quantity}</span>
                           </div>
-                       )}
+                       ))}
                     </div>
                   </div>
 
-                  {/* Destination */}
-                  <div className="lg:col-span-4 bg-heritage-dark p-8 rounded-xl text-heritage-bone relative overflow-hidden">
-                    <div className="relative z-10 space-y-6">
-                       <span className="label-text text-primary border-b border-primary/20 pb-4 block">Shipping Address</span>
-                       <div className="space-y-2">
-                          <p className="text-xs font-medium uppercase tracking-widest opacity-70 leading-relaxed">
-                            {order.shippingAddress?.addressLine}<br />
-                            {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
-                          </p>
-                          <p className="text-xs font-bold text-primary pt-2">{order.shippingAddress?.mobile}</p>
-                       </div>
-                    </div>
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                  {/* Footer */}
+                  <div className="mt-12 pt-8 border-t border-heritage-dark/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] font-bold uppercase tracking-[0.3em] text-heritage-dark/20">
+                     <div className="flex gap-8">
+                        <span>RZP: {order.razorpayOrderId}</span>
+                        {order.razorpayPaymentId && <span>TXN: {order.razorpayPaymentId}</span>}
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <Clock className="w-3 h-3" />
+                        <span>{new Date(order.createdAt).toLocaleString()}</span>
+                     </div>
                   </div>
                 </div>
-
-                {/* Items */}
-                <div className="mt-12 pt-10 border-t border-heritage-dark/5 space-y-6">
-                  <div className="flex items-center gap-3 label-text opacity-30">
-                     <Package className="w-3.5 h-3.5" /> Order Items
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                     {(order.items ?? []).map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center bg-heritage-bone/30 p-4 rounded-lg border border-heritage-dark/5">
-                           <span className="text-[11px] font-bold text-heritage-dark uppercase tracking-widest truncate flex-1 pr-4">{item.name}</span>
-                           <span className="text-[10px] font-bold text-primary">QTY {item.quantity}</span>
-                        </div>
-                     ))}
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="mt-12 pt-8 border-t border-heritage-dark/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] font-bold uppercase tracking-[0.3em] text-heritage-dark/20">
-                   <div className="flex gap-8">
-                      <span>RZP: {order.razorpayOrderId}</span>
-                      {order.razorpayPaymentId && <span>TXN: {order.razorpayPaymentId}</span>}
-                   </div>
-                   <div className="flex items-center gap-2">
-                      <Clock className="w-3 h-3" />
-                      <span>{new Date(order.createdAt).toLocaleString()}</span>
-                   </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

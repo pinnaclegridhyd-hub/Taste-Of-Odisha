@@ -24,7 +24,10 @@ export interface IOrder extends Document {
   total: number;
   deliveryCharge: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  paymentStatus: 'pending' | 'paid' | 'failed';
+  paymentStatus: 'pending' | 'paid' | 'advance_paid' | 'fully_paid' | 'failed';
+  paymentMethod: 'online' | 'cod';
+  advancePaid: number;
+  balanceDue: number;
   razorpayOrderId: string;
   razorpayPaymentId?: string;
   shippingAddress: IShippingAddress;
@@ -113,8 +116,21 @@ const OrderSchema = new Schema<IOrder>(
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'paid', 'failed'],
+      enum: ['pending', 'paid', 'advance_paid', 'fully_paid', 'failed'],
       default: 'pending',
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['online', 'cod'],
+      default: 'online',
+    },
+    advancePaid: {
+      type: Number,
+      default: 0,
+    },
+    balanceDue: {
+      type: Number,
+      default: 0,
     },
     razorpayOrderId: {
       type: String,

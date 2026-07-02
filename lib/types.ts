@@ -24,6 +24,8 @@ export interface CheckoutPayload {
   items: CartItem[];
   shippingInfo: ShippingInfo;
   phoneNumber: string;
+  couponCode?: string;
+  paymentMethod?: 'online' | 'cod';
 }
 
 export interface PaymentVerificationPayload {

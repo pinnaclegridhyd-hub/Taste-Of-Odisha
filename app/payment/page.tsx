@@ -126,10 +126,17 @@ export default function PaymentPage() {
           <div className="space-y-10">
             <span className="label-text text-primary">Secure Authorization</span>
             <div className="space-y-2">
-              <p className="body-text text-xs opacity-40 uppercase tracking-[0.3em]">Final Balance</p>
+              <p className="body-text text-xs opacity-40 uppercase tracking-[0.3em]">
+                {orderData.paymentMethod === 'cod' ? 'Advance Payment Due' : 'Final Amount Due'}
+              </p>
               <h2 className="text-5xl font-serif font-bold text-heritage-dark italic">
                 ₹{(orderData?.amount ?? 0).toFixed(0)}
               </h2>
+              {orderData.paymentMethod === 'cod' && orderData.total && (
+                <p className="text-[10px] font-bold text-primary uppercase tracking-wider mt-2">
+                  Remaining ₹{(orderData.total - orderData.amount).toFixed(0)} payable in cash at delivery
+                </p>
+              )}
             </div>
             
             <div className="bg-heritage-bone/50 rounded-lg py-4 text-[9px] font-bold text-heritage-dark/30 uppercase tracking-[0.4em] border border-heritage-dark/5">

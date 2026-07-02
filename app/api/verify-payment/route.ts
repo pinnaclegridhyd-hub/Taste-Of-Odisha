@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { log } from '@/lib/analytics';
 import { verifyPaymentSignature } from '@/lib/razorpay';
 import { getClientIP, verifyPaymentLimiter } from '@/lib/middleware';
+import { COD_ADVANCE_AMOUNT } from '@/lib/constants';
 
 /**
  * POST /api/verify-payment
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if already paid (idempotency)
-    if (order.paymentStatus === 'paid') {
+    if (order.paymentStatus === 'paid' || order.paymentStatus === 'fully_paid' || order.paymentStatus === 'advance_paid') {
       log.payment('Order already paid (idempotent request)', {
         orderId: order.orderId,
       });
@@ -82,13 +83,21 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // COD vs Online calculations
+    const isCod = order.paymentMethod === 'cod';
+    const advancePaid = isCod ? Math.min(COD_ADVANCE_AMOUNT, order.total) : order.total;
+    const balanceDue = isCod ? Math.max(0, order.total - advancePaid) : 0;
+    const nextPaymentStatus = isCod ? 'advance_paid' : 'fully_paid';
+
     // Update order with payment details
     await orderCollection.updateOne(
       { _id: order._id },
       { 
         $set: { 
-          paymentStatus: 'paid', 
+          paymentStatus: nextPaymentStatus, 
           status: 'processing', 
+          advancePaid,
+          balanceDue,
           razorpayPaymentId,
           updatedAt: new Date()
         } 
@@ -115,6 +124,9 @@ export async function POST(request: NextRequest) {
       orderId: order.orderId,
       amount: order.total,
       razorpayPaymentId,
+      paymentStatus: nextPaymentStatus,
+      advancePaid,
+      balanceDue,
     });
 
     return NextResponse.json({

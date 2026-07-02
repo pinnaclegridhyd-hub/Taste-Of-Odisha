@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
 /**
  * PUT /api/admin/orders
- * Update order status
+ * Update order status or payment status
  */
 export async function PUT(request: NextRequest) {
   try {
@@ -50,18 +50,34 @@ export async function PUT(request: NextRequest) {
     await connectDB();
 
     const body = await request.json();
-    const { orderId, status } = body;
+    const { orderId, status, paymentStatus } = body;
 
-    if (!orderId || !status) {
+    if (!orderId) {
       return NextResponse.json(
-        { error: 'Missing orderId or status' },
+        { error: 'Missing orderId' },
+        { status: 400 }
+      );
+    }
+
+    const updateFields: any = {};
+    if (status) updateFields.status = status;
+    if (paymentStatus) {
+      updateFields.paymentStatus = paymentStatus;
+      if (paymentStatus === 'fully_paid') {
+        updateFields.balanceDue = 0;
+      }
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      return NextResponse.json(
+        { error: 'Missing fields to update (status or paymentStatus)' },
         { status: 400 }
       );
     }
 
     const order = await Order.findOneAndUpdate(
       { orderId },
-      { status },
+      { $set: updateFields },
       { new: true }
     );
 
@@ -72,9 +88,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    log.api('Admin updated order status', {
+    log.api('Admin updated order details', {
       orderId,
-      status,
+      ...updateFields,
     });
 
     return NextResponse.json({

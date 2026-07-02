@@ -38,7 +38,7 @@ export function getEffectivePrice(
     endDate?: Date;
   }
 ): number {
-  if (!discount) {
+  if (!discount || discount.value === undefined || discount.value === null || !discount.type) {
     return formatPrice(basePrice);
   }
 

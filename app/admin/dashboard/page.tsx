@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Shield, Box, ShoppingCart, TrendingUp, AlertCircle, LogOut, ArrowRight, Package, ListChecks } from 'lucide-react';
+import { Shield, Box, ShoppingCart, TrendingUp, AlertCircle, LogOut, ArrowRight, Package, ListChecks, ImageIcon } from 'lucide-react';
 
 interface DashboardStats {
   totalProducts: number;
@@ -193,8 +193,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Action Gateways */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <Link href="/admin/products" className="group bg-white rounded-xl p-10 md:p-16 border border-heritage-dark/5 hover:border-primary/20 transition-all shadow-sm hover:shadow-xl flex flex-col items-start relative overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <Link href="/admin/products" className="group bg-white rounded-xl p-10 md:p-12 border border-heritage-dark/5 hover:border-primary/20 transition-all shadow-sm hover:shadow-xl flex flex-col items-start relative overflow-hidden">
              <div className="w-12 h-12 rounded-xl bg-heritage-bone flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-all">
                 <Package className="w-6 h-6" />
              </div>
@@ -207,7 +207,7 @@ export default function AdminDashboard() {
              </span>
           </Link>
 
-          <Link href="/admin/orders" className="group bg-heritage-dark rounded-xl p-10 md:p-16 border border-white/5 hover:border-primary/20 transition-all shadow-xl flex flex-col items-start relative overflow-hidden text-white">
+          <Link href="/admin/orders" className="group bg-heritage-dark rounded-xl p-10 md:p-12 border border-white/5 hover:border-primary/20 transition-all shadow-xl flex flex-col items-start relative overflow-hidden text-white">
              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-8 group-hover:bg-primary transition-all">
                 <ListChecks className="w-6 h-6" />
              </div>
@@ -217,6 +217,19 @@ export default function AdminDashboard() {
              </p>
              <span className="flex items-center gap-3 label-text text-primary group-hover:translate-x-2 transition-transform">
                 View Orders <ArrowRight className="w-4 h-4" />
+             </span>
+          </Link>
+
+          <Link href="/admin/banners" className="group bg-white rounded-xl p-10 md:p-12 border border-heritage-dark/5 hover:border-primary/20 transition-all shadow-sm hover:shadow-xl flex flex-col items-start relative overflow-hidden">
+             <div className="w-12 h-12 rounded-xl bg-heritage-bone flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-all">
+                <ImageIcon className="w-6 h-6" />
+             </div>
+             <h2 className="text-2xl font-serif font-bold text-heritage-dark mb-4 italic">Banner Slider</h2>
+             <p className="body-text text-sm opacity-60 mb-10 max-w-sm">
+                Manage homepage carousel banners. Add promotional offers, seasonal campaigns, and hero images.
+             </p>
+             <span className="flex items-center gap-3 label-text text-primary group-hover:translate-x-2 transition-transform">
+                Manage Banners <ArrowRight className="w-4 h-4" />
              </span>
           </Link>
         </div>

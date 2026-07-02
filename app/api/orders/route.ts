@@ -7,6 +7,7 @@ import { generateOrderId, getEffectivePrice, getDeliveryCharge } from '@/lib/hel
 import { createRazorpayOrder } from '@/lib/razorpay';
 import { validateStock } from '@/lib/pricing';
 import { getClientIP, createOrderLimiter } from '@/lib/middleware';
+import { COD_ADVANCE_AMOUNT } from '@/lib/constants';
 
 /**
  * GET /api/orders
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const body = await request.json();
-    const { items, shippingInfo, phoneNumber } = body;
+    const { items, shippingInfo, phoneNumber, paymentMethod = 'online' } = body;
 
     // Validate input
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -74,6 +75,13 @@ export async function POST(request: NextRequest) {
     if (!shippingInfo || !phoneNumber) {
       return NextResponse.json(
         { error: 'Missing shipping information' },
+        { status: 400 }
+      );
+    }
+
+    if (paymentMethod !== 'online' && paymentMethod !== 'cod') {
+      return NextResponse.json(
+        { error: 'Invalid payment method' },
         { status: 400 }
       );
     }
@@ -123,14 +131,25 @@ export async function POST(request: NextRequest) {
     const deliveryCharge = getDeliveryCharge(subtotal);
     const total = subtotal + deliveryCharge;
 
+    // Validate COD threshold
+    if (paymentMethod === 'cod' && total <= COD_ADVANCE_AMOUNT) {
+      return NextResponse.json(
+        { error: `Cash on Delivery is only available for orders above ₹${COD_ADVANCE_AMOUNT}. Please choose online payment.` },
+        { status: 400 }
+      );
+    }
+
     // Generate order ID
     const orderId = generateOrderId();
+
+    // Determine the amount to be paid now via Razorpay
+    const paymentAmountNow = paymentMethod === 'cod' ? COD_ADVANCE_AMOUNT : total;
 
     // Create Razorpay order
     let razorpayOrder;
     try {
       razorpayOrder = await createRazorpayOrder(
-         total,
+         paymentAmountNow,
          orderId,
          undefined,
          phoneNumber
@@ -152,6 +171,9 @@ export async function POST(request: NextRequest) {
       deliveryCharge,
       status: 'pending',
       paymentStatus: 'pending',
+      paymentMethod,
+      advancePaid: 0,
+      balanceDue: total,
       razorpayOrderId: razorpayOrder.id,
       shippingAddress: shippingInfo,
     });
@@ -160,6 +182,8 @@ export async function POST(request: NextRequest) {
       total,
       itemCount: orderItems.length,
       razorpayOrderId: razorpayOrder.id,
+      paymentMethod,
+      paymentAmountNow,
     });
 
     return NextResponse.json({
@@ -167,7 +191,7 @@ export async function POST(request: NextRequest) {
       data: {
         orderId: order.orderId,
         razorpayOrderId: razorpayOrder.id,
-        amount: total,
+        amount: paymentAmountNow,
         key: process.env.RAZORPAY_KEY_ID,
       },
     });

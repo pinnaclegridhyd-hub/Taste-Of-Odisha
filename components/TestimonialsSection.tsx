@@ -53,9 +53,9 @@ const TestimonialsSection: React.FC = () => {
   };
 
   return (
-    <section className="py-24 bg-heritage-bone/30 overflow-hidden">
+    <section className="py-12 bg-heritage-bone/30 overflow-hidden">
       <div className="container-sanctuary">
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-4 px-4">
+        <div className="text-center max-w-2xl mx-auto mb-8 space-y-4 px-4">
           <span className="label-text text-primary">Community Stories</span>
           <h2 className="h2 lowercase first-letter:uppercase text-heritage-dark">
             Trusted Odisha heritage.
@@ -72,7 +72,7 @@ const TestimonialsSection: React.FC = () => {
           {testimonials.map((testimonial) => (
             <div
               key={testimonial.id}
-              className="min-w-[82vw] md:min-w-0 snap-center bg-white p-8 md:p-10 rounded-2xl border border-heritage-dark/5 relative shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+              className="min-w-[82vw] md:min-w-0 snap-center bg-white p-8 md:p-10 rounded-xl border border-heritage-dark/5 relative shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div className="space-y-6">
                 <div className="flex gap-1">

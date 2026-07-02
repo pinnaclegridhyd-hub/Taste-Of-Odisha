@@ -38,6 +38,9 @@ function parseFolderInfo(folderName) {
   else if (upper.includes('PAPAD')) category = 'Papaad';
   else if (upper.includes('SEGADALU')) category = 'Segadalu';
   else if (upper.includes('SWEET')) category = 'Sweets';
+  else if (upper.includes('NOODLES') || upper.includes('CHOWMEIN')) category = 'Noodles';
+  else if (upper.includes('ATTAKALA') || upper.includes('KAMYA')) category = 'Staples';
+  else if (upper.includes('MASALA') || upper.includes('SPICES')) category = 'Masala & Spices';
   
   return { price, quantity, category };
 }

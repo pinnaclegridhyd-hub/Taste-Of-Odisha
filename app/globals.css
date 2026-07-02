@@ -49,7 +49,7 @@
 
   /* Responsive Constraints */
   .container-sanctuary {
-    @apply max-w-[1280px] mx-auto px-4 md:px-8;
+    @apply max-w-[1440px] mx-auto px-4 md:px-8;
   }
 }
 
@@ -85,5 +85,115 @@
 /* Remove broken editorial animations */
 .mask-reveal, .section-bleed, .asymmetric-offset, .asymmetric-reverse { display: contents; }
 
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Product Page Sidebar */
+.product-sidebar {
+  @apply bg-white rounded-xl border border-heritage-dark/5 overflow-hidden;
+}
+
+.sidebar-category-item {
+  @apply flex items-center gap-3 px-4 py-3 text-sm font-medium text-heritage-dark/70 cursor-pointer transition-all border-l-3 border-transparent;
+}
+
+.sidebar-category-item:hover {
+  @apply bg-heritage-bone/60 text-heritage-dark;
+}
+
+.sidebar-category-item.active {
+  @apply bg-primary/5 text-primary border-l-primary font-semibold;
+}
+
+.sidebar-category-icon {
+  @apply w-9 h-9 rounded-lg bg-heritage-bone flex items-center justify-center overflow-hidden flex-shrink-0;
+}
+
+/* Filter Bar */
+.filter-bar {
+  @apply flex flex-wrap items-center gap-3 py-3 border-b border-heritage-dark/5 mb-6;
+}
+
+.filter-select {
+  @apply bg-white border border-heritage-dark/10 rounded-lg px-3 py-2 text-xs font-semibold text-heritage-dark cursor-pointer transition-all outline-none;
+  @apply hover:border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/10;
+}
+
+/* E-Commerce Product Card */
+.product-card-ecom {
+  @apply bg-white rounded-lg border border-gray-100 overflow-hidden transition-all relative;
+  @apply hover:shadow-lg hover:border-gray-200;
+}
+
+.product-card-ecom .card-image-area {
+  @apply relative aspect-square bg-[#F8F6F3] overflow-hidden;
+}
+
+.product-card-ecom .wishlist-btn {
+  @apply absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center z-10 transition-all shadow-sm;
+  @apply hover:bg-white hover:shadow-md hover:text-heritage-red;
+}
+
+.product-card-ecom .add-btn {
+  @apply absolute bottom-3 right-3 z-10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider border-2 rounded transition-all;
+  @apply border-primary text-primary bg-white hover:bg-primary hover:text-white active:scale-95;
+}
+
+.product-card-ecom .add-btn.added {
+  @apply bg-green-600 border-green-600 text-white;
+}
+
+.product-card-ecom .sold-overlay {
+  @apply absolute inset-0 bg-white/70 backdrop-blur-[1px] flex items-center justify-center z-20;
+}
+
+.product-card-ecom .sold-label {
+  @apply text-xs font-bold uppercase tracking-widest text-heritage-dark/40 px-4 py-1.5 border border-heritage-dark/15 rounded bg-white/80;
+}
+
+.product-card-ecom .card-info {
+  @apply p-3 md:p-4 space-y-1.5;
+}
+
+.product-card-ecom .price-row {
+  @apply flex items-baseline gap-2 flex-wrap;
+}
+
+.product-card-ecom .effective-price {
+  @apply text-base md:text-lg font-bold text-primary;
+}
+
+.product-card-ecom .mrp-price {
+  @apply text-xs text-gray-400 line-through;
+}
+
+.product-card-ecom .discount-pct {
+  @apply text-[10px] font-bold text-green-600;
+}
+
+.product-card-ecom .product-name {
+  @apply text-sm font-medium text-heritage-dark leading-snug line-clamp-2;
+}
+
+.product-card-ecom .variant-select {
+  @apply text-xs text-heritage-dark/50 cursor-pointer border-none bg-transparent outline-none font-medium;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  @apply flex items-center gap-2 text-xs text-heritage-dark/50 font-medium py-3 flex-wrap;
+}
+
+.breadcrumbs a {
+  @apply hover:text-primary transition-colors;
+}
+
+.breadcrumbs .separator {
+  @apply text-heritage-dark/20;
+}
+
+.breadcrumbs .current {
+  @apply text-heritage-dark/80 font-semibold;
+}
 
