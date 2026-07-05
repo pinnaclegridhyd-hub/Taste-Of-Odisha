@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /payment
+Disallow: /account
+Disallow: /order-confirmation/
+
+Sitemap: https://tasteofodisha1996.com/sitemap.xml
