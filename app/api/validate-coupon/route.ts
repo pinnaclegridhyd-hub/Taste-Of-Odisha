@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const { items, couponCode } = await request.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-      return NextResponse.json({ error: 'Your manifest is empty' }, { status: 400 });
+      return NextResponse.json({ error: 'Your cart is empty' }, { status: 400 });
     }
 
     await connectDB();
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       const breakdown = await calculateCartPrice(items, productMap, couponCode);
       
       if (couponCode && !breakdown.couponApplied) {
-        return NextResponse.json({ error: 'Invalid or expired heritage code' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid or expired coupon code' }, { status: 400 });
       }
 
       log.api('Validated coupon', { couponCode, discount: breakdown.discount });

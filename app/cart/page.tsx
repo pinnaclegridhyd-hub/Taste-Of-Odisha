@@ -119,10 +119,10 @@ export default function CartPage() {
         <div className="w-32 h-32 bg-primary/5 rounded-full flex items-center justify-center animate-pulse">
            <ShoppingBag className="w-12 h-12 text-primary opacity-30" />
         </div>
-        <h1 className="h1 lowercase first-letter:uppercase text-heritage-dark">Your manifest <br/><span className="italic font-normal text-primary">is empty.</span></h1>
+        <h1 className="h1 lowercase first-letter:uppercase text-heritage-dark">Your cart <br/><span className="italic font-normal text-primary">is empty.</span></h1>
         <p className="body-text max-w-sm">Start your journey through our authentic Odisha collections and preserve ancient legacies.</p>
         <Link href="/products" className="btn-primary">
-           Explore The Boutique
+           Explore The Collection
         </Link>
       </main>
     );
@@ -137,7 +137,7 @@ export default function CartPage() {
                 <ArrowLeft className="w-4 h-4" /> Continue Discovery
               </Link>
            </div>
-           <h1 className="h1 lowercase first-letter:uppercase text-heritage-dark">Selected <span className="italic font-normal text-primary">Manifest.</span></h1>
+           <h1 className="h1 lowercase first-letter:uppercase text-heritage-dark">Your <span className="italic font-normal text-primary">Cart.</span></h1>
         </div>
       </div>
 
@@ -147,7 +147,7 @@ export default function CartPage() {
           {/* Cart Items List */}
           <div className="lg:col-span-8 space-y-6">
             <div className="flex items-center gap-4 py-4 border-b border-heritage-dark/5">
-                <span className="label-text">{cartItems.length} Masterpieces in Manifest</span>
+                <span className="label-text">{cartItems.length} Items in Cart</span>
                 <div className="h-px flex-grow bg-heritage-dark/5"></div>
             </div>
 
@@ -195,11 +195,11 @@ export default function CartPage() {
           {/* Pricing Summary Sidebar */}
           <div className="lg:col-span-4 space-y-8">
             <div className="bg-white rounded-xl p-8 border border-heritage-dark/5 shadow-md space-y-8">
-              <h2 className="label-text pb-4 border-b border-heritage-dark/5">Price Manifest Summary</h2>
+              <h2 className="label-text pb-4 border-b border-heritage-dark/5">Order Summary</h2>
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-heritage-dark/40">
-                  <span>Manifest Subtotal</span>
+                  <span>Subtotal</span>
                   <span className="text-heritage-dark">₹{subtotal.toFixed(0)}</span>
                 </div>
                 
@@ -224,7 +224,7 @@ export default function CartPage() {
               {/* Promo Code Input */}
               {!couponData && (
                 <div className="space-y-3 pt-6 border-t border-heritage-dark/5">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-heritage-dark/40">Heritage Promo Code</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-heritage-dark/40">Promo Code</label>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -245,7 +245,7 @@ export default function CartPage() {
               )}
 
               <div className="flex flex-col gap-2 pt-6 border-t border-heritage-dark/5 text-right">
-                <span className="label-text">Final Manifest Total</span>
+                <span className="label-text">Order Total</span>
                 <span className="text-4xl md:text-5xl font-bold text-heritage-dark">₹{(couponData ? couponData.total : (subtotal + deliveryCharge)).toFixed(0)}</span>
               </div>
 
@@ -253,7 +253,7 @@ export default function CartPage() {
                 onClick={() => router.push('/checkout')} 
                 className="w-full btn-primary py-5 rounded-lg flex items-center justify-center gap-3"
               >
-                Purchase Manifest <ChevronRight className="w-5 h-5" />
+                Proceed to Checkout <ChevronRight className="w-5 h-5" />
               </button>
 
               <div className="grid grid-cols-2 gap-4 pt-8 border-t border-heritage-dark/5 opacity-30">
@@ -263,7 +263,7 @@ export default function CartPage() {
                  </div>
                  <div className="flex flex-col items-center gap-3 text-center">
                     <Truck className="w-4 h-4 text-heritage-dark" />
-                    <span className="text-[8px] font-bold uppercase tracking-widest">Artisan Courier</span>
+                    <span className="text-[8px] font-bold uppercase tracking-widest">Secure Shipping</span>
                  </div>
               </div>
             </div>

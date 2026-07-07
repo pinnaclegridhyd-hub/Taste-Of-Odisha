@@ -51,7 +51,7 @@ export default function CategoryManagementPage() {
         setCategories(data.data);
       }
     } catch (err) {
-      setError('Failed to fetch heritage archives');
+      setError('Failed to fetch categories');
     } finally {
       setLoading(false);
     }
@@ -127,20 +127,20 @@ export default function CategoryManagementPage() {
         return;
       }
 
-      setSuccess(editingId ? 'Archived update successful' : 'New lineage established');
+      setSuccess(editingId ? 'Category updated successfully' : 'Category created successfully');
       fetchCategories();
       resetForm();
       
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError('Connection disrupted during archival');
+      setError('Connection error during save');
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you certain this category should be expunged from the records?')) return;
+    if (!confirm('Are you certain you wish to delete this category?')) return;
 
     setActionLoading(true);
     setError('');
@@ -157,11 +157,11 @@ export default function CategoryManagementPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Expulsion failed');
+        setError(data.error || 'Delete failed');
         return;
       }
 
-      setSuccess('Lineage expunged successfully');
+      setSuccess('Category deleted successfully');
       fetchCategories();
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
@@ -182,7 +182,7 @@ export default function CategoryManagementPage() {
                   <ArrowLeft className="w-3 h-3" /> Dashboard
                </Link>
                <h1 className="h1 lowercase first-letter:uppercase text-heritage-dark">
-                 Category <br /><span className="italic font-normal text-primary">Archives.</span>
+                 Category <br /><span className="italic font-normal text-primary">Management.</span>
                </h1>
             </div>
             {!showForm && (
@@ -190,7 +190,7 @@ export default function CategoryManagementPage() {
                 onClick={() => setShowForm(true)}
                 className="btn-primary py-4 px-8 rounded-xl flex items-center gap-3 group"
               >
-                Establish New Lineage <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
+                Add Category <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
               </button>
             )}
           </div>
@@ -218,8 +218,8 @@ export default function CategoryManagementPage() {
                 <div className="bg-white rounded-xl shadow-sm border border-heritage-dark/5 overflow-hidden">
                   <div className="bg-heritage-dark px-8 py-4 border-b border-white/5 flex justify-between items-center">
                     <div>
-                      <span className="label-text text-primary">{editingId ? 'Lineage Editor' : 'Lineage Genesis'}</span>
-                      <p className="body-text text-white/50 text-[10px] italic">Defining a new category of heritage artifacts.</p>
+                      <span className="label-text text-primary">{editingId ? 'Category Editor' : 'Create Category'}</span>
+                      <p className="body-text text-white/50 text-[10px] italic">Defining a new product category.</p>
                     </div>
                     <button onClick={resetForm} className="text-white/40 hover:text-white transition-colors">
                       <X className="w-5 h-5" />
@@ -241,7 +241,7 @@ export default function CategoryManagementPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Archive identifier (Slug)</label>
+                        <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Category identifier (Slug)</label>
                         <input
                           type="text"
                           name="slug"
@@ -299,7 +299,7 @@ export default function CategoryManagementPage() {
                         disabled={actionLoading}
                         className="btn-primary py-4 px-12 rounded-xl flex items-center gap-3 disabled:opacity-50"
                       >
-                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Seal Archive' : 'Establish Lineage')}
+                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Save Category' : 'Create Category')}
                       </button>
                     </div>
                   </form>
@@ -325,7 +325,7 @@ export default function CategoryManagementPage() {
                 ) : categories.length === 0 ? (
                   <div className="py-20 text-center space-y-4">
                      <Search className="w-10 h-10 text-heritage-dark/10 mx-auto" />
-                     <p className="body-text text-sm">No lineages recorded in the sanctuary.</p>
+                     <p className="body-text text-sm">No categories found.</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-heritage-dark/5">
@@ -359,14 +359,14 @@ export default function CategoryManagementPage() {
                            <button 
                             onClick={() => handleEdit(cat)}
                             className="p-3 rounded-lg hover:bg-white hover:shadow-md border border-transparent hover:border-heritage-dark/5 text-heritage-dark/40 hover:text-primary transition-all"
-                            title="Edit Archive"
+                            title="Edit Category"
                            >
                              <Edit2 className="w-4 h-4" />
                            </button>
                            <button 
                             onClick={() => handleDelete(cat._id)}
                             className="p-3 rounded-lg hover:bg-white hover:shadow-md border border-transparent hover:border-heritage-red/20 text-heritage-dark/40 hover:text-heritage-red transition-all"
-                            title="Expunge Lineage"
+                            title="Delete Category"
                            >
                              <Trash2 className="w-4 h-4" />
                            </button>

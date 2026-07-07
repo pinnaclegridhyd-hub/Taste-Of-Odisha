@@ -14,6 +14,7 @@ export interface IProduct extends Document {
   images: string[];
   inStock: boolean;
   stockQuantity: number;
+  weight?: string;
   origin: string;
   artisanName?: string;
   description: string;
@@ -76,6 +77,10 @@ const ProductSchema = new Schema<IProduct>(
       default: 'Odisha',
     },
     artisanName: String,
+    weight: {
+      type: String,
+      trim: true,
+    },
     description: {
       type: String,
       required: true,

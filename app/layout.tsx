@@ -38,28 +38,28 @@ export default function RootLayout({
             <div className="flex items-center justify-between gap-6 h-16 md:h-20">
 
               {/* Logo - Heritage Elegance */}
-              <Link href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 group relative z-[210]">
-                <Image src="/images/logo-too.jpeg" alt="Taste Of Odisha" width={56} height={56} className="w-12 h-12 md:w-14 md:h-14 mix-blend-multiply rounded-md" />
-                <div className="flex flex-col">
-                  <span className="text-2xl md:text-3xl font-serif font-bold text-heritage-dark tracking-tight leading-none group-hover:text-primary transition-colors">
+              <Link href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 md:gap-3 group relative z-[210] shrink-0">
+                <Image src="/images/logo-too.jpeg" alt="Taste Of Odisha" width={56} height={56} className="w-10 h-10 md:w-12 md:h-12 mix-blend-multiply rounded-md" />
+                <div className="hidden sm:flex flex-col">
+                  <span className="text-lg md:text-2xl font-serif font-bold text-heritage-dark tracking-tight leading-none group-hover:text-primary transition-colors">
                     Taste Of
                   </span>
-                  <span className="text-sm md:text-base font-bold tracking-[0.25em] text-primary uppercase mt-0.5">
+                  <span className="text-[9px] md:text-xs font-bold tracking-[0.25em] text-primary uppercase mt-0.5">
                     Odisha
                   </span>
                 </div>
               </Link>
 
               {/* Universal Search - Accessible Amazon Standard */}
-              <div className="hidden lg:flex flex-1 items-center justify-center max-w-xl px-4">
+              <div className="flex flex-1 items-center justify-center max-w-[140px] sm:max-w-xs md:max-w-md lg:max-w-lg px-2">
                 <form action="/products" method="GET" className="w-full relative group">
                   <input
                     type="text"
                     name="search"
-                    placeholder="Search for authentic heritage..."
-                    className="w-full h-11 bg-white/80 border border-heritage-dark/10 rounded-lg px-10 text-sm focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all"
+                    placeholder="Search..."
+                    className="w-full h-8 sm:h-9 md:h-11 bg-white/80 border border-heritage-dark/10 rounded-lg pl-8 pr-2 sm:pl-9 sm:pr-3 text-[11px] sm:text-xs md:text-sm focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all"
                   />
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-heritage-dark/40" />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-heritage-dark/40" />
                 </form>
               </div>
 
@@ -67,7 +67,7 @@ export default function RootLayout({
               <div className="hidden lg:flex items-center gap-8">
                 <nav className="flex items-center gap-6 border-r border-heritage-dark/10 pr-8">
                   <Link href="/products" className="text-[11px] font-semibold uppercase tracking-widest text-heritage-dark/80 hover:text-primary transition-colors">Collection</Link>
-                  <Link href="/about" className="text-[11px] font-semibold uppercase tracking-widest text-heritage-dark/80 hover:text-primary transition-colors">Our Legacy</Link>
+                  <Link href="/about" className="text-[11px] font-semibold uppercase tracking-widest text-heritage-dark/80 hover:text-primary transition-colors">About Us</Link>
                 </nav>
                 <div className="flex items-center gap-5">
                   <Link href="/account" className="w-10 h-10 rounded-lg border border-heritage-dark/10 flex items-center justify-center text-heritage-dark hover:border-primary hover:text-primary transition-all">
@@ -95,7 +95,19 @@ export default function RootLayout({
 
         {/* Clean Mobile Sidebar Navigator */}
         <div className={`fixed inset-0 bg-heritage-bone z-[150] lg:hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} ${!isMenuOpen ? 'pointer-events-none' : ''}`}>
-          <div className="flex flex-col h-full pt-28 px-6 space-y-10">
+          <div className="flex flex-col h-full pt-28 px-6 space-y-6">
+
+            {/* Mobile Search Bar */}
+            <form action="/products" method="GET" className="relative group" onSubmit={() => setIsMenuOpen(false)}>
+              <input
+                type="text"
+                name="search"
+                placeholder="Search products..."
+                className="w-full h-12 bg-white border border-heritage-dark/10 rounded-xl px-11 text-sm focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all"
+              />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-heritage-dark/40" />
+            </form>
+
             <nav className="flex flex-col divide-y divide-heritage-dark/5">
               {[
                 { name: 'Latest Arrivals', href: '/products' },
@@ -144,7 +156,7 @@ export default function RootLayout({
                   </div>
                 </Link>
                 <p className="text-sm text-white/60 leading-relaxed font-normal">
-                  Real products from Odisha, made by real artisans. Our collection is handcrafted by 100% women-led collectives in Odisha.
+                  Authentic products from Odisha, made by local communities. Our collection is prepared by 100% women-led self-help groups in Odisha.
                 </p>
               </div>
 
@@ -163,14 +175,14 @@ export default function RootLayout({
                 <ul className="space-y-4 text-sm text-white/70">
                   <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Support</Link></li>
                   <li><Link href="/shipping-policy" className="hover:text-primary transition-colors">Shipping Info</Link></li>
-                  <li><Link href="/return-policy" className="hover:text-primary transition-colors">Returns Policy</Link></li>
+                  {/* <li><Link href="/return-policy" className="hover:text-primary transition-colors">Returns Policy</Link></li> */}
                   {/* <li><Link href="/about" className="hover:text-primary transition-colors">G.I. Verification</Link></li> */}
                 </ul>
               </div>
 
               <div className="space-y-6">
                 <h4 className="text-[10px] font-bold text-primary tracking-widest uppercase mb-6">The Journal</h4>
-                <p className="text-xs text-white/40 leading-relaxed">Join our inner circle for seasonal drops and artisan stories.</p>
+                 <p className="text-xs text-white/40 leading-relaxed">Join our inner circle for seasonal drops and updates.</p>
                 <form className="relative">
                   <input
                     type="email"
@@ -185,10 +197,10 @@ export default function RootLayout({
             </div>
 
             <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-[10px] text-white/30 uppercase tracking-[0.2em] gap-6">
-              <p>© 2024 Taste Of Odisha International.</p>
+              <p>© 2026 Taste Of Odisha International.</p>
               <div className="flex flex-wrap justify-center gap-8">
                 <span className="flex items-center gap-2 text-primary/60"><ShieldCheck className="w-3 h-3" /> Certified G.I. Origin</span>
-                <span>Artisan Owned</span>
+                <span>Community Owned</span>
               </div>
             </div>
           </div>

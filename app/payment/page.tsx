@@ -25,7 +25,7 @@ export default function PaymentPage() {
     script.onload = () => {
       const currentOrder = localStorage.getItem('currentOrder');
       if (!currentOrder) {
-        setError('No order found. Please return to the sanctuary and try again.');
+        setError('No order found. Please return to the cart and try again.');
         setLoading(false);
         return;
       }
@@ -47,7 +47,7 @@ export default function PaymentPage() {
     };
 
     script.onerror = () => {
-      setError('Failed to load heritage payment gateway. Please refresh.');
+      setError('Failed to load payment gateway. Please refresh.');
       setLoading(false);
     };
     return () => {
@@ -72,7 +72,7 @@ export default function PaymentPage() {
         localStorage.removeItem('currentOrder');
         router.push(`/order-confirmation/${verifyData.data.orderId}`);
       } else {
-        setError('Heritage validation failed. Please contact our support.');
+        setError('Order verification failed. Please contact our support.');
       }
     } catch (err) {
       setError('Verification connection error.');
@@ -88,12 +88,12 @@ export default function PaymentPage() {
       order_id: order.razorpayOrderId,
       name: 'TasteOfOdisha',
       description: `Order ${order.orderId}`,
-      theme: { color: '#8B6B4C' }, // Sanctuary primary color
+      theme: { color: '#8B6B4C' }, // Primary color
       prefill: { contact: '', email: '' },
       handler: (res: any) => handlePaymentSuccess(res, order),
       modal: {
         ondismiss: () => {
-          setError('Transaction paused. Returning to manifest...');
+          setError('Transaction cancelled. Returning to cart...');
           setTimeout(() => router.push('/cart'), 2000);
         },
       },
@@ -119,7 +119,7 @@ export default function PaymentPage() {
             <h2 className="text-2xl font-serif font-bold text-heritage-dark italic">Transaction Paused</h2>
             <p className="body-text text-sm opacity-60 tracking-tight">{error}</p>
             <button onClick={() => router.push('/cart')} className="w-full btn-outline py-4">
-              Return to Manifest
+              Return to Cart
             </button>
           </div>
         ) : orderData ? (

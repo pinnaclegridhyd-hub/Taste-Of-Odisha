@@ -222,18 +222,18 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 {product.name}
               </h1>
 
-              {/* Artisan Profile */}
+              {/* Maker Profile */}
               <div className="bg-white p-6 rounded-xl border border-heritage-dark/5 flex items-start gap-6 shadow-sm">
                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
                     <Users className="w-6 h-6" />
                  </div>
                  <div className="space-y-1">
-                    <span className="label-text !text-[9px]">Handcrafted By</span>
+                    <span className="label-text !text-[9px]">Prepared By</span>
                     <p className="font-bold text-heritage-dark">
-                       {product.artisanName || 'Odisha Artisan Collective'}
+                       {product.artisanName || "Odisha Women's Collective"}
                     </p>
                     <p className="text-sm text-heritage-dark/60 font-medium italic">
-                       Made in Odisha by local artisans using traditional techniques.
+                       Prepared in Odisha by local self-help groups using authentic home-style recipes.
                     </p>
                  </div>
               </div>
@@ -254,7 +254,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     <div className="inline-flex items-center gap-2 bg-heritage-red/5 px-4 py-1.5 rounded-full w-fit">
                        <Zap className="w-4 h-4 text-heritage-red fill-heritage-red/20" />
                        <p className="text-[10px] font-bold text-heritage-red uppercase tracking-widest">
-                          Heritage Savings: ₹{basePrice - effectivePrice} Off
+                          Savings: ₹{(basePrice - effectivePrice).toFixed(1)} Off
                        </p>
                     </div>
                   )}

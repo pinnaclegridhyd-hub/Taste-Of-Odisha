@@ -6,6 +6,7 @@ import { log } from '@/lib/analytics';
 import { verifyPaymentSignature } from '@/lib/razorpay';
 import { getClientIP, verifyPaymentLimiter } from '@/lib/middleware';
 import { COD_ADVANCE_AMOUNT } from '@/lib/constants';
+import { sendOrderConfirmationEmail, sendOrderWhatsApp } from '@/lib/notifications';
 
 /**
  * POST /api/verify-payment
@@ -128,6 +129,39 @@ export async function POST(request: NextRequest) {
       advancePaid,
       balanceDue,
     });
+
+    // ─── Send order confirmation notifications (fire-and-forget) ───
+    const notificationPayload = {
+      orderId:       order.orderId,
+      customerName:  `${order.shippingAddress?.firstName || ''} ${order.shippingAddress?.lastName || ''}`.trim() || order.shippingAddress?.name || 'Valued Customer',
+      customerEmail: order.shippingAddress?.email || '',
+      customerPhone: order.shippingAddress?.phone || '',
+      items: (order.items || []).map((item: any) => ({
+        name:     item.name || 'Product',
+        quantity: item.quantity,
+        price:    item.price || 0,
+      })),
+      total:         order.total,
+      subtotal:      order.subtotal || order.total,
+      deliveryCharge:order.deliveryCharge || 0,
+      discount:      order.discount || 0,
+      advancePaid,
+      balanceDue,
+      paymentMethod: order.paymentMethod,
+      shippingAddress: {
+        addressLine1: order.shippingAddress?.addressLine1 || order.shippingAddress?.address || '',
+        city:         order.shippingAddress?.city || '',
+        state:        order.shippingAddress?.state || '',
+        pincode:      order.shippingAddress?.pincode || order.shippingAddress?.zip || '',
+      },
+    };
+
+    // Non-blocking — don't await, never throws on the main flow
+    Promise.allSettled([
+      sendOrderConfirmationEmail(notificationPayload),
+      sendOrderWhatsApp(notificationPayload),
+    ]).catch(() => {});
+    // ──────────────────────────────────────────────────────────────
 
     return NextResponse.json({
       success: true,

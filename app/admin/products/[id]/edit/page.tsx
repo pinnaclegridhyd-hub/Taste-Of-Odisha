@@ -37,6 +37,7 @@ const EditProductPage = () => {
     slug: '',
     category: 'food',
     price: 0,
+    weight: '',
     discount: {
       type: 'percentage',
       value: 0,
@@ -70,13 +71,14 @@ const EditProductPage = () => {
       if (data.success) {
         setFormData({
           ...data.data,
+          weight: data.data.weight || '',
           discount: data.data.discount || { type: 'percentage', value: 0 },
         });
       } else {
-        setError(data.error || 'Failed to fetch artifact');
+        setError(data.error || 'Failed to fetch product');
       }
     } catch (err) {
-      setError('Connection error while fetching artifact');
+      setError('Connection error while fetching product');
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +142,7 @@ const EditProductPage = () => {
         localStorage.setItem('adminKey', adminKey);
         router.push('/admin/products');
       } else {
-        setError(data.error || 'Failed to update artifact');
+        setError(data.error || 'Failed to update product');
       }
     } catch (err) {
       setError('Connection error during validation');
@@ -154,7 +156,7 @@ const EditProductPage = () => {
       <main className="min-h-screen bg-secondary flex items-center justify-center">
         <div className="flex flex-col items-center gap-6">
            <div className="w-10 h-10 border-2 border-primary/10 border-t-primary rounded-full animate-spin"></div>
-           <span className="label-text opacity-40">Syncing Artifact</span>
+           <span className="label-text opacity-40">Syncing Product</span>
         </div>
       </main>
     );
@@ -171,7 +173,7 @@ const EditProductPage = () => {
                   <ArrowLeft className="w-3 h-3" /> Catalog
                </Link>
                <h1 className="h1 lowercase first-letter:uppercase text-heritage-dark">
-                 Edit <br /><span className="italic font-normal text-primary">Artifact.</span>
+                 Edit <br /><span className="italic font-normal text-primary">Product.</span>
                </h1>
             </div>
           </div>
@@ -182,8 +184,8 @@ const EditProductPage = () => {
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-xl shadow-sm border border-heritage-dark/5 overflow-hidden animate-fade-up">
             <div className="bg-heritage-dark px-10 py-6 border-b border-white/5">
-              <span className="label-text text-primary">Manifest Editor</span>
-              <p className="body-text text-white/50 text-xs mt-1 italic">Update heritage piece details for the sanctuary.</p>
+              <span className="label-text text-primary">Product Editor</span>
+              <p className="body-text text-white/50 text-xs mt-1 italic">Update product details for the catalog.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="p-10 md:p-16 space-y-16">
@@ -201,7 +203,7 @@ const EditProductPage = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Artifact Name</label>
+                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Product Name</label>
                     <input
                       type="text"
                       name="name"
@@ -212,7 +214,7 @@ const EditProductPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Archive Category</label>
+                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Product Category</label>
                     <select
                       name="category"
                       value={formData.category}
@@ -226,10 +228,10 @@ const EditProductPage = () => {
                       ))}
                       {categories.length === 0 && (
                         <>
-                          <option value="food">Artisan Food</option>
-                          <option value="clothing">Heritage Clothing</option>
-                          <option value="craft">Puri Crafts</option>
-                          <option value="festive">Festival Sanctuary</option>
+                          <option value="food">Odisha Food</option>
+                          <option value="clothing">Traditional Clothing</option>
+                          <option value="craft">Puri Specialties</option>
+                          <option value="festive">Festive Collection</option>
                         </>
                       )}
                     </select>
@@ -237,7 +239,7 @@ const EditProductPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Archive URL Slug</label>
+                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">URL Slug</label>
                   <input
                     type="text"
                     name="slug"
@@ -249,7 +251,7 @@ const EditProductPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Narrative Description</label>
+                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Description</label>
                   <textarea
                     name="description"
                     required
@@ -262,7 +264,7 @@ const EditProductPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Lead Artisan</label>
+                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Maker / Prepared By</label>
                     <input
                       type="text"
                       name="artisanName"
@@ -272,7 +274,7 @@ const EditProductPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Artifact Inventory</label>
+                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Stock Quantity</label>
                     <input
                       type="number"
                       name="stockQuantity"
@@ -284,17 +286,30 @@ const EditProductPage = () => {
                     />
                   </div>
                 </div>
+
+                {/* Weight Field */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Weight (e.g. 200g, 500g)</label>
+                  <input
+                    type="text"
+                    name="weight"
+                    value={(formData as any).weight || ''}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 200g"
+                    className="w-full px-6 py-4 bg-heritage-bone/30 border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium"
+                  />
+                </div>
               </div>
 
               {/* Section: Pricing */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3 label-text opacity-30">
-                   <Tag className="w-3.5 h-3.5" /> Pricing Manifest
+                   <Tag className="w-3.5 h-3.5" /> Pricing
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Base Valuation (₹)</label>
+                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Price (₹)</label>
                     <div className="relative">
                       <IndianRupee className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-heritage-dark/20" />
                       <input
@@ -326,19 +341,19 @@ const EditProductPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-heritage-bone/30 p-8 rounded-xl border border-heritage-dark/5">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-primary uppercase tracking-widest ml-1">Handshake Discount</label>
+                    <label className="text-[10px] font-bold text-primary uppercase tracking-widest ml-1">Discount Type</label>
                     <select
                       name="discount.type"
                       value={formData.discount.type}
                       onChange={handleInputChange}
                       className="w-full px-6 py-4 bg-white border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium cursor-pointer"
                     >
-                      <option value="percentage">Percentage Archive (%)</option>
-                      <option value="fixed">Fixed Valuation (₹)</option>
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="fixed">Fixed Amount (₹)</option>
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-primary uppercase tracking-widest ml-1">Discount Magnitude</label>
+                    <label className="text-[10px] font-bold text-primary uppercase tracking-widest ml-1">Discount Value</label>
                     <input
                       type="number"
                       name="discount.value"
@@ -354,7 +369,7 @@ const EditProductPage = () => {
               {/* Section: Images */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3 label-text opacity-30">
-                   <ImageIcon className="w-3.5 h-3.5" /> Artifact Visuals
+                   <ImageIcon className="w-3.5 h-3.5" /> Product Images
                 </div>
                 
                 <div className="flex flex-col md:flex-row gap-4">
@@ -370,14 +385,14 @@ const EditProductPage = () => {
                     onClick={addImage}
                     className="btn-outline px-10 py-4 flex items-center gap-3"
                   >
-                    <Plus className="w-4 h-4" /> Add to Archive
+                    <Plus className="w-4 h-4" /> Add to Gallery
                   </button>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {formData.images.map((img, idx) => (
                     <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden border border-heritage-dark/5 shadow-sm bg-heritage-bone">
-                      <img src={img} alt={`Artifact ${idx}`} className="w-full h-full object-cover" />
+                       <img src={img} alt={`Product ${idx}`} className="w-full h-full object-cover" />
                       <button
                         type="button"
                         onClick={() => removeImage(idx)}
@@ -396,7 +411,7 @@ const EditProductPage = () => {
                    <ShieldCheck className="w-3.5 h-3.5" /> High-Level Authorization
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-heritage-red/40 uppercase tracking-widest ml-1">Sanctuary Key</label>
+                  <label className="text-[10px] font-bold text-heritage-red/40 uppercase tracking-widest ml-1">Admin Key</label>
                   <input
                     type="password"
                     required
@@ -414,7 +429,7 @@ const EditProductPage = () => {
                   href="/admin/products"
                   className="flex-1 btn-outline py-5 rounded-xl text-center"
                 >
-                  Cancel Manifest
+                  Cancel
                 </Link>
                 <button
                   type="submit"
@@ -424,7 +439,7 @@ const EditProductPage = () => {
                   {isSaving ? (
                     <LoadingSpinner className="w-5 h-5 border-white/30 border-t-white" />
                   ) : (
-                    <>Update Manifest <Save className="w-4 h-4 transition-transform group-hover:scale-110" /></>
+                    <>Save Changes <Save className="w-4 h-4 transition-transform group-hover:scale-110" /></>
                   )}
                 </button>
               </div>

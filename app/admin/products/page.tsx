@@ -48,7 +48,7 @@ export default function AdminProductsPage() {
   }, [router]);
 
   const handleDelete = async (slug: string) => {
-    if (!confirm('Are you certain you wish to purge this heritage artifact from the manifest?')) return;
+    if (!confirm('Are you certain you wish to delete this product?')) return;
 
     try {
       const res = await fetch(`/api/products/${slug}`, {
@@ -59,10 +59,10 @@ export default function AdminProductsPage() {
       if (res.ok) {
         setProducts(products.filter((p) => p.slug !== slug));
       } else {
-        setError('Failed to purge artifact');
+        setError('Failed to delete product');
       }
     } catch (err) {
-      setError('Connection error during purge');
+      setError('Connection error during deletion');
     }
   };
 
@@ -92,7 +92,7 @@ export default function AdminProductsPage() {
                </h1>
             </div>
             <Link href="/admin/products/create" className="btn-primary px-8 py-4 flex items-center gap-3">
-              <Plus className="w-4 h-4" /> Add Artifact
+              <Plus className="w-4 h-4" /> Add Product
             </Link>
           </div>
         </div>
@@ -110,9 +110,9 @@ export default function AdminProductsPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-heritage-bone/50 border-b border-heritage-dark/5">
-                  <th className="px-8 py-4 label-text opacity-30">Artifact Identity</th>
+                  <th className="px-8 py-4 label-text opacity-30">Product Details</th>
                   <th className="px-8 py-4 label-text opacity-30">Category</th>
-                  <th className="px-8 py-4 label-text opacity-30 text-right">Valuation</th>
+                  <th className="px-8 py-4 label-text opacity-30 text-right">Price</th>
                   <th className="px-8 py-4 label-text opacity-30 text-center">Stock</th>
                   <th className="px-8 py-4 label-text opacity-30 text-center">Status</th>
                   <th className="px-8 py-4 label-text opacity-30 text-right">Actions</th>
@@ -164,14 +164,14 @@ export default function AdminProductsPage() {
                         <Link
                           href={`/admin/products/${product._id}/edit`}
                           className="p-2 text-heritage-dark/30 hover:text-primary transition-colors"
-                          title="Edit Manifest"
+                          title="Edit Product"
                         >
                           <Edit3 className="w-4 h-4" />
                         </Link>
                         <button
                           onClick={() => handleDelete(product.slug)}
                           className="p-2 text-heritage-dark/30 hover:text-heritage-red transition-colors"
-                          title="Purge Artifact"
+                          title="Delete Product"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

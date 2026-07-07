@@ -53,9 +53,13 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if already paid (idempotency)
-      if (order.paymentStatus === 'paid') {
+      // NOTE: verify-payment sets status to 'fully_paid' or 'advance_paid' — not 'paid'
+      // This webhook must guard against ALL paid states to prevent double stock deduction
+      const alreadyPaid = ['paid', 'fully_paid', 'advance_paid'].includes(order.paymentStatus);
+      if (alreadyPaid) {
         log.webhook('Order already paid (webhook idempotent)', {
           orderId: order.orderId,
+          paymentStatus: order.paymentStatus,
         });
         return NextResponse.json({ success: true });
       }

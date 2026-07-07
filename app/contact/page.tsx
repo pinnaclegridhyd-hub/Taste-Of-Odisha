@@ -85,7 +85,7 @@ export default function ContactPage() {
                 <h3 className="text-xl font-serif font-bold text-heritage-dark border-b-2 border-primary/20 pb-4 w-fit">Support Pillars</h3>
                 <div className="space-y-6">
                    {[
-                     { icon: HeartHandshake, title: 'Artisan Welfare', desc: 'Queries regarding fair trade and artisan support programs.' },
+                     { icon: HeartHandshake, title: 'Community Welfare', desc: 'Queries regarding fair trade and community support programs.' },
                      { icon: ShieldCheck, title: 'Authenticity Check', desc: 'Concerns about GI tags and heritage certifications.' },
                    ].map((item, i) => (
                      <div key={i} className="flex items-start gap-4 text-left">

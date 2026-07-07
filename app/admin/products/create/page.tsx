@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Plus, X, Image as ImageIcon, Info, Tag, IndianRupee, Package, ShieldCheck, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, Image as ImageIcon, Info, Tag, IndianRupee, Package, ShieldCheck, AlertCircle, Weight } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function CreateProductPage() {
@@ -34,6 +34,7 @@ export default function CreateProductPage() {
     name: '',
     category: 'food',
     price: '',
+    weight: '',
     discount: {
       type: 'percentage',
       value: '',
@@ -98,6 +99,7 @@ export default function CreateProductPage() {
         price: parseFloat(formData.price),
         stockQuantity: parseInt(formData.stockQuantity),
         inStock: formData.inStock,
+        weight: formData.weight || undefined,
         artisanName: formData.artisanName || undefined,
         description: formData.description,
         images: formData.images
@@ -137,7 +139,7 @@ export default function CreateProductPage() {
 
       router.push('/admin/products');
     } catch (err) {
-      setError('Connection error during manifest creation');
+      setError('Connection error during product creation');
       setLoading(false);
     }
   };
@@ -153,7 +155,7 @@ export default function CreateProductPage() {
                   <ArrowLeft className="w-3 h-3" /> Catalog
                </Link>
                <h1 className="h1 lowercase first-letter:uppercase text-heritage-dark">
-                 Create <br /><span className="italic font-normal text-primary">Artifact.</span>
+                 Create <br /><span className="italic font-normal text-primary">Product.</span>
                </h1>
             </div>
           </div>
@@ -164,8 +166,8 @@ export default function CreateProductPage() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-xl shadow-sm border border-heritage-dark/5 overflow-hidden animate-fade-up">
             <div className="bg-heritage-dark px-10 py-6 border-b border-white/5">
-              <span className="label-text text-primary">Genesis Editor</span>
-              <p className="body-text text-white/50 text-xs mt-1 italic">Initiate a new heritage entry into the sanctuary catalog.</p>
+              <span className="label-text text-primary">Product Editor</span>
+              <p className="body-text text-white/50 text-xs mt-1 italic">Add a new product to the catalog.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="p-10 md:p-16 space-y-16">
@@ -183,7 +185,7 @@ export default function CreateProductPage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Artifact Name</label>
+                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Product Name</label>
                     <input
                       type="text"
                       name="name"
@@ -194,7 +196,7 @@ export default function CreateProductPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Archive Category</label>
+                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Product Category</label>
                     <select
                       name="category"
                       value={formData.category}
@@ -206,13 +208,13 @@ export default function CreateProductPage() {
                           {cat.name}
                         </option>
                       ))}
-                      {categories.length === 0 && <option value="food">Artisan Food</option>}
+                      {categories.length === 0 && <option value="food">Odisha Food</option>}
                     </select>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Narrative Description</label>
+                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Description</label>
                   <textarea
                     name="description"
                     required
@@ -224,15 +226,15 @@ export default function CreateProductPage() {
                 </div>
               </div>
 
-              {/* Section: Stock & Financials */}
+              {/* Section: Stock & Pricing */}
               <div className="space-y-8">
                  <div className="flex items-center gap-3 label-text opacity-30">
-                    <Tag className="w-3.5 h-3.5" /> Manifest Details
+                    <Tag className="w-3.5 h-3.5" /> Stock & Pricing
                  </div>
                  
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="space-y-2 md:col-span-1">
-                      <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Base Valuation (₹)</label>
+                      <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Price (₹)</label>
                       <div className="relative">
                         <IndianRupee className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-heritage-dark/20" />
                         <input
@@ -247,7 +249,7 @@ export default function CreateProductPage() {
                       </div>
                     </div>
                     <div className="space-y-2 md:col-span-1">
-                      <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Inventory Count</label>
+                      <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Stock Quantity</label>
                       <input
                         type="number"
                         name="stockQuantity"
@@ -255,6 +257,17 @@ export default function CreateProductPage() {
                         min="0"
                         value={formData.stockQuantity}
                         onChange={handleInputChange}
+                        className="w-full px-6 py-4 bg-heritage-bone/30 border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium"
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-1">
+                      <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Weight (e.g. 200g, 500g)</label>
+                      <input
+                        type="text"
+                        name="weight"
+                        value={formData.weight}
+                        onChange={handleInputChange}
+                        placeholder="e.g. 200g"
                         className="w-full px-6 py-4 bg-heritage-bone/30 border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium"
                       />
                     </div>
@@ -278,12 +291,12 @@ export default function CreateProductPage() {
               {/* Section: Discount */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3 label-text opacity-30">
-                   <ShieldCheck className="w-3.5 h-3.5" /> Discount Protocol
+                   <ShieldCheck className="w-3.5 h-3.5" /> Discount
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-heritage-bone/30 p-8 rounded-xl border border-heritage-dark/5">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-primary uppercase tracking-widest ml-1">Type</label>
+                    <label className="text-[10px] font-bold text-primary uppercase tracking-widest ml-1">Discount Type</label>
                     <select
                       name="type"
                       value={formData.discount.type}
@@ -291,11 +304,11 @@ export default function CreateProductPage() {
                       className="w-full px-6 py-4 bg-white border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium cursor-pointer"
                     >
                       <option value="percentage">Percentage (%)</option>
-                      <option value="fixed">Fixed (₹)</option>
+                      <option value="fixed">Fixed Amount (₹)</option>
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-primary uppercase tracking-widest ml-1">Magitude</label>
+                    <label className="text-[10px] font-bold text-primary uppercase tracking-widest ml-1">Discount Value</label>
                     <input
                       type="number"
                       name="value"
@@ -309,7 +322,7 @@ export default function CreateProductPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Commencement</label>
+                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Start Date</label>
                     <input
                       type="datetime-local"
                       name="startDate"
@@ -319,7 +332,7 @@ export default function CreateProductPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Conclusion</label>
+                    <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">End Date</label>
                     <input
                       type="datetime-local"
                       name="endDate"
@@ -334,11 +347,11 @@ export default function CreateProductPage() {
               {/* Section: Media */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3 label-text opacity-30">
-                   <ImageIcon className="w-3.5 h-3.5" /> Heritage Visuals
+                   <ImageIcon className="w-3.5 h-3.5" /> Product Images
                 </div>
                 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Visual Endpoints (Comma Separated)</label>
+                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Image URLs (Comma Separated)</label>
                   <textarea
                     name="images"
                     value={formData.images}
@@ -350,13 +363,13 @@ export default function CreateProductPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Lead Artisan Attribution</label>
+                  <label className="text-[10px] font-bold text-heritage-dark/40 uppercase tracking-widest ml-1">Maker / Prepared By</label>
                   <input
                     type="text"
                     name="artisanName"
                     value={formData.artisanName}
                     onChange={handleInputChange}
-                    placeholder="e.g. Master Artisan Devi"
+                    placeholder="e.g. Odisha Women's Self-Help Group"
                     className="w-full px-6 py-4 bg-heritage-bone/30 border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium"
                   />
                 </div>
@@ -368,7 +381,7 @@ export default function CreateProductPage() {
                   href="/admin/products"
                   className="flex-1 btn-outline py-5 rounded-xl text-center"
                 >
-                  Cancel Manifest
+                  Cancel
                 </Link>
                 <button
                   type="submit"
@@ -378,7 +391,7 @@ export default function CreateProductPage() {
                   {loading ? (
                     <LoadingSpinner className="w-5 h-5 border-white/30 border-t-white" />
                   ) : (
-                    <>Establish Artifact <Plus className="w-4 h-4 transition-transform group-hover:scale-110" /></>
+                    <>Create Product <Plus className="w-4 h-4 transition-transform group-hover:scale-110" /></>
                   )}
                 </button>
               </div>

@@ -115,8 +115,8 @@ export default function HomePage() {
         <div className="container-sanctuary">
           <div className="flex justify-between items-end gap-6 mb-8">
             <div className="space-y-1">
-              <span className="label-text text-primary">Explore the Sanctuary</span>
-              <h2 className="h2 lowercase first-letter:uppercase text-heritage-dark">the departments.</h2>
+              <span className="label-text text-primary">Browse Categories</span>
+              <h2 className="h2 lowercase first-letter:uppercase text-heritage-dark">our categories.</h2>
             </div>
             <Link href="/products" className="text-xs font-bold uppercase tracking-widest text-primary border-b border-primary/20 pb-1">
               Browse All
@@ -168,14 +168,14 @@ export default function HomePage() {
             <div className="relative rounded-xl overflow-hidden aspect-[4/5] border border-heritage-dark/5 shadow-sm">
               <Image
                 src="/TASTE%20OF%20ODISHA/BERHAMPUR%20ACHAR_-500gram%20%20%E2%82%B9249/MIX%20SWEET%20ACHAR/file_00000000702071f59e0e244874ece619.png"
-                alt="Artisan Story"
+                alt="Our Story"
                 fill
                 className="object-cover"
               />
             </div>
             <div className="space-y-10 lg:pl-10">
               <div className="space-y-4">
-                <span className="label-text text-primary">The Artisan Story</span>
+                <span className="label-text text-primary">Our Story</span>
                 <h2 className="h2">Sun, Soil, <br /><span className="text-primary italic font-normal">and Soul.</span></h2>
               </div>
               <p className="body-text text-lg">
@@ -221,11 +221,11 @@ export default function HomePage() {
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 items-center gap-12">
               <div className="space-y-6">
                 <h2 className="h1 text-white lowercase first-letter:uppercase">Gift the <span className="italic font-normal">soul of odisha.</span></h2>
-                <p className="text-white/80 body-text text-lg">Join our inner circle for exclusive seasonal drops and artisan journal stories.</p>
+                <p className="text-white/80 body-text text-lg">Join our inner circle for exclusive seasonal drops and community updates.</p>
               </div>
               <div className="flex justify-center md:justify-end">
                 <Link href="/products" className="btn-primary !bg-secondary !text-primary hover:!bg-white">
-                  Join the Collective
+                  Shop Collection
                 </Link>
               </div>
             </div>

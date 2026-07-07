@@ -200,20 +200,20 @@ export default function AdminDashboard() {
              </div>
              <h2 className="text-2xl font-serif font-bold text-heritage-dark mb-4 italic">Product Management</h2>
              <p className="body-text text-sm opacity-60 mb-10 max-w-sm">
-                Manage the Odisha collection. Update inventory, pricing, and curate artisan products.
+                Manage the Odisha collection. Update inventory, pricing, and curate high-quality products.
              </p>
              <span className="flex items-center gap-3 label-text text-primary group-hover:translate-x-2 transition-transform">
                 Explore Catalog <ArrowRight className="w-4 h-4" />
              </span>
           </Link>
-
+ 
           <Link href="/admin/orders" className="group bg-heritage-dark rounded-xl p-10 md:p-12 border border-white/5 hover:border-primary/20 transition-all shadow-xl flex flex-col items-start relative overflow-hidden text-white">
              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-8 group-hover:bg-primary transition-all">
                 <ListChecks className="w-6 h-6" />
              </div>
              <h2 className="text-2xl font-serif font-bold text-heritage-bone mb-4 italic">Order Fulfillment</h2>
              <p className="text-heritage-bone/60 text-sm mb-10 max-w-sm">
-                Manage order processing and shipping. Update status, verify details, and ensure artisan delivery.
+                Manage order processing and shipping. Update status, verify details, and ensure prompt delivery.
              </p>
              <span className="flex items-center gap-3 label-text text-primary group-hover:translate-x-2 transition-transform">
                 View Orders <ArrowRight className="w-4 h-4" />
