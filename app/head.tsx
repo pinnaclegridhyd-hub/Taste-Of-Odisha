@@ -1,8 +1,6 @@
 const SITE_URL = 'https://www.tasteofodisha1996.com';
 
 export default function Head() {
-  const verification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
-
   return (
     <>
       <title>Taste Of Odisha | Authentic Odisha Food & Heritage Products</title>
@@ -16,7 +14,6 @@ export default function Head() {
       <meta property="og:url" content={SITE_URL} />
       <meta property="og:image" content={`${SITE_URL}/images/logo-too.jpeg`} />
       <meta name="twitter:card" content="summary_large_image" />
-      {verification ? <meta name="google-site-verification" content={verification} /> : null}
     </>
   );
 }

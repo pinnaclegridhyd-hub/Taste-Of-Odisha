@@ -5,11 +5,10 @@ import Script from 'next/script';
 import './globals.css';
 import Link from 'next/link';
 import CartBadge from '@/components/CartBadge';
-import GoogleAnalytics from '@/components/GoogleAnalytics';
 import WhatsAppSupportButton from '@/components/WhatsAppSupportButton';
 import { Toaster, toast } from 'sonner';
 import { Search, User, Menu, X, Heart, MessageCircle, ChevronRight, ShoppingBag, ShieldCheck, Palette, Sparkles } from 'lucide-react';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function RootLayout({
   children,
@@ -18,7 +17,6 @@ export default function RootLayout({
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -54,20 +52,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className="antialiased selection:bg-primary/10 selection:text-primary bg-secondary min-h-screen flex flex-col font-sans">
-        {googleAnalyticsId ? (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`window.dataLayer = window.dataLayer || [];function gtag(){window.dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${googleAnalyticsId}', { send_page_view: false });`}
-            </Script>
-            <Suspense fallback={null}>
-              <GoogleAnalytics measurementId={googleAnalyticsId} />
-            </Suspense>
-          </>
-        ) : null}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([organizationSchema, websiteSchema]) }} />
 
         {/* Professional Header - Sanctuary Standard */}

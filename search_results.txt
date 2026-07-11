@@ -1,9 +1,0 @@
-D:\TasteofOdisha\app\about\page.tsx:63: In a world of mass production, we celebrate the slow, the deliberate, and the heart-made. From the intricate linework of Madhubani paintings—where every stroke is a prayer—to the unique flavors of handcrafted Sun-dried Makhana, each product in our sanctuary is a piece of history verified for authenticity.
-D:\TasteofOdisha\app\admin\categories\page.tsx:240: placeholder="e.g. Madhubani Crafts"
-D:\TasteofOdisha\app\admin\categories\page.tsx:252: placeholder="madhubani-crafts"
-D:\TasteofOdisha\app\admin\products\[id]\edit\page.tsx:231: <option value="craft">Madhubani Crafts</option>
-D:\TasteofOdisha\app\admin\products\[id]\edit\page.tsx:246: placeholder="e.g. madhubani-painting-large"
-D:\TasteofOdisha\app\contact\page.tsx:53: Madhubani Region, <br />Odisha, India
-D:\TasteofOdisha\components\TestimonialsSection.tsx:9: text: 'The Madhubani painting I ordered is exquisite. The detail is incredible, and you can really feel the heritage in it. It shifted the entire energy of my living room.',
-D:\TasteofOdisha\seed-premium.ts:48: name: 'Madhubani Silk Dupatta',
-D:\TasteofOdisha\seed-premium.ts:49: slug: 'madhubani-dupatta',
