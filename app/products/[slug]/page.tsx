@@ -21,6 +21,7 @@ import {
 import { toast } from 'sonner';
 import TrustSignals from '@/components/TrustSignals';
 import Link from 'next/link';
+import { getDisplayImageUrl } from '@/lib/image-url';
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -188,7 +189,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   }}
                   className={`relative w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${ (activeImage === idx && !selectedVariant?.image) ? 'border-primary shadow-sm scale-105' : 'border-white hover:border-primary/10 shadow-sm'}`}
                 >
-                  <Image src={img} alt={`Preview ${idx}`} fill className="object-cover" />
+                   <Image src={getDisplayImageUrl(img)} alt={`Preview ${idx}`} fill className="object-cover" />
                 </button>
               ))}
             </div>
@@ -197,7 +198,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               <div className={`w-full h-full relative transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                 {displayImage ? (
                   <Image
-                    src={displayImage}
+                     src={getDisplayImageUrl(displayImage)}
                     alt={product.name}
                     fill
                     className="object-cover"
@@ -273,13 +274,14 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                {/* Variant Selection */}
                {product.variants && product.variants.length > 0 && (
                   <div className="space-y-6">
-                    <label className="label-text">Select Variety</label>
+                     <label className="label-text">Select Size / Pack</label>
                     <div className="grid grid-cols-2 gap-4">
                       {product.variants.map((v: any, i: number) => (
                         <button
                           key={i}
                           onClick={() => setSelectedVariant(v)}
-                          className={`p-4 rounded-lg border text-left transition-all ${selectedVariant?.name === v.name ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-heritage-dark border-heritage-dark/10 hover:border-primary/20'}`}
+                          disabled={v.stockQuantity <= 0}
+                          className={`p-4 rounded-lg border text-left transition-all disabled:opacity-40 disabled:cursor-not-allowed ${selectedVariant?.name === v.name ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-heritage-dark border-heritage-dark/10 hover:border-primary/20'}`}
                         >
                           <p className="text-[10px] font-bold uppercase tracking-widest mb-1">{v.name}</p>
                           <p className="text-lg font-bold">₹{v.price}</p>

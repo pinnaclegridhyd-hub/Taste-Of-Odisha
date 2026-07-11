@@ -64,6 +64,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Product ID is required' }, { status: 400 });
     }
 
+    if (updateData.variants && (!Array.isArray(updateData.variants) || updateData.variants.some((variant: any) => !variant.name || !Number.isFinite(variant.price) || !Number.isFinite(variant.stockQuantity) || variant.price < 0 || variant.stockQuantity < 0))) {
+      return NextResponse.json({ success: false, error: 'Each size option needs a name, valid price and stock quantity' }, { status: 400 });
+    }
+
     const product = await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 
     if (!product) {

@@ -2,6 +2,7 @@ import { connectDB } from '@/lib/db';
 import Product from '@/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
 import { log } from '@/lib/analytics';
+import { normalizeProductImageList, normalizeProductImagePath } from '@/lib/image-path';
 
 /**
  * GET /api/products/[slug]
@@ -71,18 +72,31 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, category, price, discount, images, inStock, stockQuantity, artisanName, description } = body;
+    const { name, category, price, discount, images, inStock, stockQuantity, artisanName, description, variants, weight } = body;
 
     // Update fields
     if (name !== undefined) product.name = name;
     if (category !== undefined) product.category = category;
     if (price !== undefined) product.price = price;
     if (discount !== undefined) product.discount = discount;
-    if (images !== undefined) product.images = images;
+    if (images !== undefined) product.images = normalizeProductImageList(images);
     if (inStock !== undefined) product.inStock = inStock;
     if (stockQuantity !== undefined) product.stockQuantity = stockQuantity;
     if (artisanName !== undefined) product.artisanName = artisanName;
     if (description !== undefined) product.description = description;
+    if (weight !== undefined) product.weight = weight;
+    if (variants !== undefined) {
+      if (!Array.isArray(variants) || variants.some((variant) => !variant.name || !Number.isFinite(variant.price) || !Number.isFinite(variant.stockQuantity) || variant.price < 0 || variant.stockQuantity < 0)) {
+        return NextResponse.json(
+          { success: false, error: 'Each size option needs a name, valid price and stock quantity' },
+          { status: 400 }
+        );
+      }
+      product.variants = variants.map((variant) => ({
+        ...variant,
+        image: normalizeProductImagePath(variant.image),
+      }));
+    }
 
     // Explicitly regenerate slug if name changed
     if (name && name !== product.name) {

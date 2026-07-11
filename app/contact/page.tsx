@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Mail, Phone, MapPin, Clock, MessageCircle, ShieldCheck, HeartHandshake, ChevronRight, ArrowLeft } from 'lucide-react';
+import { SUPPORT_PHONE_E164, SUPPORT_PHONE_NUMBER } from '@/lib/support';
 
 export const metadata: Metadata = {
   title: 'Contact Us | Taste Of Odisha',
@@ -41,8 +42,8 @@ export default function ContactPage() {
             <div className="bg-white p-8 rounded-xl border border-heritage-dark/5 shadow-sm space-y-4">
               <Phone className="w-6 h-6 text-primary" />
               <h3 className="label-text">Voice Assistance</h3>
-              <a href="tel:+918260607991" className="text-xl font-bold text-heritage-dark hover:text-primary transition-colors block">
-                +91 82606 07991
+              <a href={`tel:+91${SUPPORT_PHONE_NUMBER}`} className="text-xl font-bold text-heritage-dark hover:text-primary transition-colors block">
+                +91 63703 64700
               </a>
             </div>
 
@@ -76,7 +77,7 @@ export default function ContactPage() {
                     Connect directly with our curation team for immediate support and live heritage updates.
                   </p>
                </div>
-               <Link href="https://wa.me/918260607991" className="btn-primary w-fit flex items-center gap-3">
+               <Link href={`https://wa.me/${SUPPORT_PHONE_E164}`} className="btn-primary w-fit flex items-center gap-3">
                   Start Chat <MessageCircle className="w-4 h-4" />
                </Link>
             </div>

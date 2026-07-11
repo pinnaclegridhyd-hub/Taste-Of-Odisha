@@ -3,6 +3,7 @@ import Product from '@/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
 import { log } from '@/lib/analytics';
 import { generateUniqueSlug } from '@/lib/slug-utils';
+import { normalizeProductImageList, normalizeProductImagePath } from '@/lib/image-path';
 
 /**
  * GET /api/products
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     const products = await Product.find(query).select(
-      'name slug category price discount images inStock stockQuantity artisanName description'
+      'name slug category price weight variants discount images inStock stockQuantity artisanName description'
     );
 
     log.api('Fetched products', {
@@ -67,6 +68,8 @@ export async function POST(request: NextRequest) {
       images,
       inStock,
       stockQuantity,
+      weight,
+      variants,
       artisanName,
       description,
     } = body;
@@ -79,8 +82,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (variants && (!Array.isArray(variants) || variants.some((variant) => !variant.name || !Number.isFinite(variant.price) || !Number.isFinite(variant.stockQuantity) || variant.price < 0 || variant.stockQuantity < 0))) {
+      return NextResponse.json({ error: 'Each size option needs a name, valid price and stock quantity' }, { status: 400 });
+    }
+
     // Always regenerate unique slug from name
     const slug = await generateUniqueSlug(Product, name);
+
+    const normalizedVariants = Array.isArray(variants)
+      ? variants.map((variant) => ({
+          ...variant,
+          image: normalizeProductImagePath(variant.image),
+        }))
+      : [];
 
     const product = await Product.create({
       name,
@@ -88,9 +102,11 @@ export async function POST(request: NextRequest) {
       category,
       price,
       discount,
-      images: images || [],
+      images: normalizeProductImageList(images),
       inStock: inStock !== undefined ? inStock : true,
       stockQuantity: stockQuantity || 0,
+      weight,
+      variants: normalizedVariants,
       artisanName,
       description,
       origin: 'Odisha',

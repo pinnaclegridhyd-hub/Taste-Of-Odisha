@@ -44,6 +44,7 @@ export default function CreateProductPage() {
     images: '',
     inStock: true,
     stockQuantity: '',
+    variants: [] as Array<{ name: string; price: string; stockQuantity: string; image: string }>,
     artisanName: '',
     description: '',
   });
@@ -81,6 +82,18 @@ export default function CreateProductPage() {
     }));
   };
 
+  const addVariant = () => {
+    setFormData(prev => ({ ...prev, variants: [...prev.variants, { name: '', price: '', stockQuantity: '', image: '' }] }));
+  };
+
+  const updateVariant = (index: number, field: 'name' | 'price' | 'stockQuantity' | 'image', value: string) => {
+    setFormData(prev => ({ ...prev, variants: prev.variants.map((variant, i) => i === index ? { ...variant, [field]: value } : variant) }));
+  };
+
+  const removeVariant = (index: number) => {
+    setFormData(prev => ({ ...prev, variants: prev.variants.filter((_, i) => i !== index) }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -106,6 +119,9 @@ export default function CreateProductPage() {
           .split(',')
           .map((url) => url.trim())
           .filter((url) => url),
+        variants: formData.variants
+          .filter((variant) => variant.name.trim() && variant.price !== '' && variant.stockQuantity !== '')
+          .map((variant) => ({ name: variant.name.trim(), price: parseFloat(variant.price), stockQuantity: parseInt(variant.stockQuantity), image: variant.image.trim() || undefined })),
       };
 
       if (formData.discount.value) {
@@ -285,6 +301,24 @@ export default function CreateProductPage() {
                         <span className="text-sm font-bold text-heritage-dark/60 group-hover:text-primary transition-colors">Product In Stock</span>
                       </label>
                     </div>
+                 </div>
+                 <div className="rounded-xl border border-heritage-dark/5 bg-heritage-bone/30 p-6 md:p-8 space-y-5">
+                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                     <div>
+                       <h3 className="text-sm font-bold text-heritage-dark">Sizes / pack options</h3>
+                       <p className="text-xs text-heritage-dark/50 mt-1">Add each available weight with its own price and stock, e.g. 500g, 1kg, or 2kg pack.</p>
+                     </div>
+                     <button type="button" onClick={addVariant} className="btn-outline px-5 py-3 flex items-center justify-center gap-2 text-xs"><Plus className="w-4 h-4" /> Add size</button>
+                   </div>
+                   {formData.variants.map((variant, index) => (
+                     <div key={index} className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr_0.8fr_1.4fr_auto] gap-3 items-end rounded-lg bg-white p-4 border border-heritage-dark/5">
+                       <label className="text-xs text-heritage-dark/60">Size / label<input required type="text" value={variant.name} onChange={(e) => updateVariant(index, 'name', e.target.value)} placeholder="500g" className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
+                       <label className="text-xs text-heritage-dark/60">Price (₹)<input required min="0" type="number" value={variant.price} onChange={(e) => updateVariant(index, 'price', e.target.value)} className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
+                       <label className="text-xs text-heritage-dark/60">Stock<input required min="0" type="number" value={variant.stockQuantity} onChange={(e) => updateVariant(index, 'stockQuantity', e.target.value)} className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
+                       <label className="text-xs text-heritage-dark/60">Optional image URL<input type="url" value={variant.image} onChange={(e) => updateVariant(index, 'image', e.target.value)} placeholder="https://..." className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
+                       <button type="button" onClick={() => removeVariant(index)} className="mb-0.5 p-3 text-heritage-red hover:bg-heritage-red/5 rounded-lg" aria-label="Remove size"><X className="w-4 h-4" /></button>
+                     </div>
+                   ))}
                  </div>
               </div>
 

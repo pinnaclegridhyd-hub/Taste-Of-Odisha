@@ -1,14 +1,15 @@
 'use client';
 
-import type { Metadata } from 'next';
 import Image from 'next/image';
+import Script from 'next/script';
 import './globals.css';
 import Link from 'next/link';
 import CartBadge from '@/components/CartBadge';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 import WhatsAppSupportButton from '@/components/WhatsAppSupportButton';
 import { Toaster, toast } from 'sonner';
 import { Search, User, Menu, X, Heart, MessageCircle, ChevronRight, ShoppingBag, ShieldCheck, Palette, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 
 export default function RootLayout({
   children,
@@ -17,6 +18,7 @@ export default function RootLayout({
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -28,9 +30,45 @@ export default function RootLayout({
     document.body.style.overflow = isMenuOpen ? 'hidden' : 'unset';
   }, [isMenuOpen]);
 
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Taste Of Odisha',
+    url: 'https://www.tasteofodisha1996.com',
+    logo: 'https://www.tasteofodisha1996.com/images/logo-too.jpeg',
+    sameAs: ['https://www.tasteofodisha1996.com'],
+  };
+
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Taste Of Odisha',
+    url: 'https://www.tasteofodisha1996.com',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://www.tasteofodisha1996.com/products?search={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <html lang="en" className="scroll-smooth">
       <body className="antialiased selection:bg-primary/10 selection:text-primary bg-secondary min-h-screen flex flex-col font-sans">
+        {googleAnalyticsId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];function gtag(){window.dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${googleAnalyticsId}', { send_page_view: false });`}
+            </Script>
+            <Suspense fallback={null}>
+              <GoogleAnalytics measurementId={googleAnalyticsId} />
+            </Suspense>
+          </>
+        ) : null}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([organizationSchema, websiteSchema]) }} />
 
         {/* Professional Header - Sanctuary Standard */}
         <header className={`absolute lg:fixed top-0 inset-x-0 z-[200] transition-all duration-300 ${scrolled ? 'bg-secondary/95 backdrop-blur-md shadow-sm py-2 lg:py-2' : 'bg-transparent py-4'}`}>

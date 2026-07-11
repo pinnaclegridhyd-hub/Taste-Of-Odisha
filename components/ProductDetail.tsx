@@ -9,6 +9,7 @@ import QualityBadge from './QualityBadge';
 import ArtisanHighlight from './ArtisanHighlight';
 import DeliveryBadge from './DeliveryBadge';
 import { ShoppingBag, Minus, Plus, ShieldCheck, Heart, Share2 } from 'lucide-react';
+import { getDisplayImageUrl } from '@/lib/image-url';
 
 interface ProductDetailProps {
   product: any;
@@ -41,7 +42,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCart }) =
         <div className="space-y-6 lg:sticky lg:top-32">
           <div className="aspect-[4/5] relative rounded-xl overflow-hidden bg-white shadow-lg border border-heritage-dark/5 group">
             <Image
-              src={product.images[activeImage] || 'https://images.unsplash.com/photo-1544654803-b69140b285a1?auto=format&fit=crop&q=80&w=800'}
+              src={getDisplayImageUrl(product.images[activeImage] || 'https://images.unsplash.com/photo-1544654803-b69140b285a1?auto=format&fit=crop&q=80&w=800')}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-[1.5s] group-hover:scale-105"
@@ -75,7 +76,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCart }) =
                     activeImage === idx ? 'border-primary shadow-md' : 'border-heritage-dark/5 opacity-60'
                   }`}
                 >
-                  <Image src={img} alt={`${product.name} ${idx + 1}`} fill className="object-cover" />
+                  <Image src={getDisplayImageUrl(img)} alt={`${product.name} ${idx + 1}`} fill className="object-cover" />
                 </button>
               ))}
             </div>

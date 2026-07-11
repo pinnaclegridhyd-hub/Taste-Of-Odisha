@@ -10,6 +10,7 @@ import {
   MapPin,
   User,
   Phone,
+  Mail,
   CreditCard,
   Lock,
   Zap
@@ -28,6 +29,7 @@ export default function CheckoutPage() {
 
   const [formData, setFormData] = useState<ShippingInfo>({
     name: '',
+    email: '',
     mobile: '',
     pincode: '',
     city: '',
@@ -110,7 +112,7 @@ export default function CheckoutPage() {
     setError('');
 
     try {
-      if (!formData.name || !formData.pincode || !formData.city || !formData.state || !formData.addressLine || !phoneNumber) {
+       if (!formData.name || !formData.email || !formData.pincode || !formData.city || !formData.state || !formData.addressLine || !phoneNumber) {
         setError('Complete all details to proceed');
         setSubmitting(false);
         return;
@@ -201,14 +203,21 @@ export default function CheckoutPage() {
                     <label className="label-text ml-1 opacity-40">Full Name</label>
                     <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="Recipient Name" className="w-full px-6 py-4 bg-heritage-bone/50 border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium" required />
                   </div>
-                  <div className="space-y-3">
-                    <label className="label-text ml-1 opacity-40">Mobile Number</label>
+                   <div className="space-y-3">
+                     <label className="label-text ml-1 opacity-40">Mobile Number</label>
                     <div className="relative">
                       <Phone className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-heritage-dark/20" />
                       <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="10-digit mobile" className="w-full pl-14 pr-6 py-4 bg-heritage-bone/50 border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium" required />
-                    </div>
-                  </div>
-                </div>
+                     </div>
+                   </div>
+                   <div className="space-y-3 md:col-span-2">
+                     <label className="label-text ml-1 opacity-40">Email for order confirmation</label>
+                     <div className="relative">
+                       <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-heritage-dark/20" />
+                       <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="you@example.com" className="w-full pl-14 pr-6 py-4 bg-heritage-bone/50 border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium" required />
+                     </div>
+                   </div>
+                 </div>
               </section>
 
               <section className="bg-white p-8 md:p-12 rounded-xl border border-heritage-dark/5 shadow-sm">

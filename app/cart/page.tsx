@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getEffectivePrice } from '@/lib/helpers';
+import { getDisplayImageUrl } from '@/lib/image-url';
 import { Trash2, Plus, Minus, ShieldCheck, Truck, ShoppingBag, ArrowLeft, Heart, Lock, Zap, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -156,7 +157,7 @@ export default function CartPage() {
               return (
                 <div key={`${product._id}-${product.selectedVariantName || idx}`} className="bg-white rounded-xl p-6 border border-heritage-dark/5 shadow-sm flex flex-col md:flex-row gap-8 items-center group transition-all">
                   <div className="w-32 h-32 md:w-40 md:h-40 relative rounded-lg overflow-hidden bg-heritage-bone flex-shrink-0 border border-heritage-dark/5">
-                    <Image src={product.images?.[0] || '/placeholder.jpg'} alt={product.name} fill className="object-cover transition-transform duration-[2s] group-hover:scale-110" />
+                    <Image src={getDisplayImageUrl(product.images?.[0])} alt={product.name} fill className="object-cover transition-transform duration-[2s] group-hover:scale-110" />
                   </div>
 
                   <div className="flex-1 space-y-4 w-full">

@@ -4,6 +4,7 @@ import Product from '@/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
 import { log } from '@/lib/analytics';
 import { verifyWebhookSignature } from '@/lib/razorpay';
+import { sendOrderConfirmationEmail } from '@/lib/notifications';
 
 /**
  * POST /api/razorpay-webhook
@@ -76,9 +77,11 @@ export async function POST(request: NextRequest) {
         const product = await Product.findById(item.productId);
 
         if (product) {
-          product.stockQuantity -= item.quantity;
-          if (product.stockQuantity < 0) {
-            product.stockQuantity = 0;
+          if (item.variantName) {
+            const variant = product.variants?.find((entry: any) => entry.name === item.variantName);
+            if (variant) variant.stockQuantity = Math.max(0, variant.stockQuantity - item.quantity);
+          } else {
+            product.stockQuantity = Math.max(0, product.stockQuantity - item.quantity);
           }
           await product.save();
         }
@@ -87,6 +90,25 @@ export async function POST(request: NextRequest) {
       log.webhook(`Payment authorized via webhook`, {
         orderId: order.orderId,
         razorpayPaymentId,
+      });
+
+      await sendOrderConfirmationEmail({
+        orderId: order.orderId,
+        customerName: order.shippingAddress?.name || 'Valued Customer',
+        customerEmail: order.shippingAddress?.email || '',
+        customerPhone: order.shippingAddress?.mobile || order.phoneNumber || '',
+        items: order.items.map((item: any) => ({ name: `${item.name}${item.variantName ? ` (${item.variantName})` : ''}`, quantity: item.quantity, price: item.price })),
+        total: order.total,
+        deliveryCharge: order.deliveryCharge || 0,
+        advancePaid: order.advancePaid || 0,
+        balanceDue: order.balanceDue || 0,
+        paymentMethod: order.paymentMethod,
+        shippingAddress: {
+          addressLine1: order.shippingAddress?.addressLine || '',
+          city: order.shippingAddress?.city || '',
+          state: order.shippingAddress?.state || '',
+          pincode: order.shippingAddress?.pincode || '',
+        },
       });
     }
 

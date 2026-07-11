@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Heart, Check, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { getDisplayImageUrl } from '@/lib/image-url';
 
 interface ProductCardProps {
   product: any;
@@ -117,7 +118,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Product Image */}
         {(product.images?.[0] && !imgError) ? (
           <Image
-            src={product.images[0]}
+            src={getDisplayImageUrl(product.images[0])}
             alt={product.name}
             fill
             style={{ objectFit: 'contain', padding: '16px' }}

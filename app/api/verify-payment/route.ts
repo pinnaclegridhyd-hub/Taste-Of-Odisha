@@ -107,13 +107,17 @@ export async function POST(request: NextRequest) {
 
     // Deduct stock for each product
     for (const item of order.items) {
-      await productCollection.updateOne(
-        { _id: item.productId },
-        { 
-          $inc: { stockQuantity: -item.quantity },
-          $set: { updatedAt: new Date() } 
-        }
-      );
+      if (item.variantName) {
+        await productCollection.updateOne(
+          { _id: item.productId, 'variants.name': item.variantName },
+          { $inc: { 'variants.$.stockQuantity': -item.quantity }, $set: { updatedAt: new Date() } }
+        );
+      } else {
+        await productCollection.updateOne(
+          { _id: item.productId },
+          { $inc: { stockQuantity: -item.quantity }, $set: { updatedAt: new Date() } }
+        );
+      }
 
       log.stock(`Deducted stock`, {
         productId: item.productId,
@@ -135,9 +139,9 @@ export async function POST(request: NextRequest) {
       orderId:       order.orderId,
       customerName:  `${order.shippingAddress?.firstName || ''} ${order.shippingAddress?.lastName || ''}`.trim() || order.shippingAddress?.name || 'Valued Customer',
       customerEmail: order.shippingAddress?.email || '',
-      customerPhone: order.shippingAddress?.phone || '',
+       customerPhone: order.shippingAddress?.mobile || order.shippingAddress?.phone || order.phoneNumber || '',
       items: (order.items || []).map((item: any) => ({
-        name:     item.name || 'Product',
+         name:     `${item.name || 'Product'}${item.variantName ? ` (${item.variantName})` : ''}`,
         quantity: item.quantity,
         price:    item.price || 0,
       })),
@@ -149,7 +153,7 @@ export async function POST(request: NextRequest) {
       balanceDue,
       paymentMethod: order.paymentMethod,
       shippingAddress: {
-        addressLine1: order.shippingAddress?.addressLine1 || order.shippingAddress?.address || '',
+         addressLine1: order.shippingAddress?.addressLine1 || order.shippingAddress?.addressLine || order.shippingAddress?.address || '',
         city:         order.shippingAddress?.city || '',
         state:        order.shippingAddress?.state || '',
         pincode:      order.shippingAddress?.pincode || order.shippingAddress?.zip || '',
@@ -157,10 +161,10 @@ export async function POST(request: NextRequest) {
     };
 
     // Non-blocking — don't await, never throws on the main flow
-    Promise.allSettled([
+    await Promise.allSettled([
       sendOrderConfirmationEmail(notificationPayload),
       sendOrderWhatsApp(notificationPayload),
-    ]).catch(() => {});
+    ]);
     // ──────────────────────────────────────────────────────────────
 
     return NextResponse.json({

@@ -7,6 +7,7 @@ import { IProduct } from '@/models/Product';
 import Image from 'next/image';
 import { ArrowLeft, Plus, Edit3, Trash2, Box, Package, AlertCircle } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { getDisplayImageUrl } from '@/lib/image-url';
 
 export default function AdminProductsPage() {
   const router = useRouter();
@@ -125,7 +126,7 @@ export default function AdminProductsPage() {
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 relative rounded-lg overflow-hidden border border-heritage-dark/5 shadow-sm">
                            <Image
-                             src={product.images?.[0] || '/placeholder.png'}
+                             src={getDisplayImageUrl(product.images?.[0])}
                              alt={product.name}
                              fill
                              className="object-cover"

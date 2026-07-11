@@ -13,6 +13,7 @@ export interface CartItem {
 
 export interface ShippingInfo {
   name: string;
+  email: string;
   mobile: string;
   pincode: string;
   city: string;

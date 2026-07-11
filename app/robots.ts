@@ -18,6 +18,7 @@ export default function robots(): MetadataRoute.Robots {
           '/about',
           '/contact',
           '/shipping-policy',
+          '/return-policy',
         ],
         disallow: [
           '/admin/',
@@ -36,7 +37,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/TASTE OF ODISHA/',
       },
     ],
-    sitemap: 'https://tasteofodisha1996.com/sitemap.xml',
-    host: 'https://tasteofodisha1996.com',
+    sitemap: 'https://www.tasteofodisha1996.com/sitemap.xml',
+    host: 'https://www.tasteofodisha1996.com',
   };
 }

@@ -17,6 +17,7 @@ import {
   MessageCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { SUPPORT_PHONE_E164 } from '@/lib/support';
 
 export default function OrderConfirmationPage({
   params,
@@ -90,7 +91,7 @@ export default function OrderConfirmationPage({
               </p>
 
               <a
-                href={`https://wa.me/918260607991?text=${encodeURIComponent(`Hello Taste of Odisha! I just placed an order. My Order ID is ${orderId}. Please share my order confirmation and shipping updates.`)}`}
+                href={`https://wa.me/${SUPPORT_PHONE_E164}?text=${encodeURIComponent(`Hello Taste of Odisha! I just placed an order. My Order ID is ${orderId}. Please share my order confirmation and shipping updates.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-8 inline-flex items-center gap-3 bg-[#25D366] hover:bg-[#1EBE57] text-white px-8 py-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-md hover:scale-105"

@@ -1,12 +1,12 @@
 import React from 'react';
+import { SUPPORT_PHONE_E164 } from '@/lib/support';
 
 const WhatsAppSupportButton: React.FC = () => {
-  const WHATSAPP_NUMBER = '918260607991'; // Replace with actual number
   const MESSAGE = encodeURIComponent("Namaste! I'm interested in Taste Of Odisha products. Can you help me?");
 
   return (
     <a
-      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${MESSAGE}`}
+      href={`https://wa.me/${SUPPORT_PHONE_E164}?text=${MESSAGE}`}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#128C7E] text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 flex items-center gap-2 group"

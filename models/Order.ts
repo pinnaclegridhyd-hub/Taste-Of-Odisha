@@ -10,6 +10,7 @@ export interface IOrderItem {
 
 export interface IShippingAddress {
   name: string;
+  email: string;
   mobile: string;
   pincode: string;
   city: string;
@@ -39,6 +40,12 @@ const ShippingAddressSchema = new Schema({
   name: {
     type: String,
     required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    lowercase: true,
+    trim: true,
   },
   mobile: {
     type: String,

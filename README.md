@@ -53,6 +53,8 @@ MONGODB_URI=mongodb+srv://...
 RAZORPAY_KEY_ID=rzp_live_xxxxx
 RAZORPAY_KEY_SECRET=xxxxx
 ADMIN_KEY=your-secret-key
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=google-site-verification-token
 ```
 
 ### 2. Install Dependencies
@@ -78,7 +80,8 @@ Go to `/admin/dashboard` and enter your `ADMIN_KEY`
 1. Push code to GitHub
 2. Connect repository to Vercel
 3. Add environment variables in project settings
-4. Deploy
+4. Set `NEXT_PUBLIC_GA_MEASUREMENT_ID` for Google Analytics and `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` for Search Console verification
+5. Deploy
 
 ## API Endpoints
 
