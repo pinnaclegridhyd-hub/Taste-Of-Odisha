@@ -4,6 +4,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { log } from '@/lib/analytics';
 import { normalizeProductImageList, normalizeProductImagePath } from '@/lib/image-path';
 
+function normalizeProductForResponse(product: any) {
+  const raw = product.toObject ? product.toObject() : product;
+  return {
+    ...raw,
+    images: normalizeProductImageList(raw.images),
+    variants: Array.isArray(raw.variants)
+      ? raw.variants.map((variant: any) => ({
+          ...variant,
+          image: normalizeProductImagePath(variant.image),
+        }))
+      : [],
+  };
+}
+
 /**
  * GET /api/products/[slug]
  * Fetch a single product by slug
@@ -32,7 +46,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: product,
+      data: normalizeProductForResponse(product),
     });
   } catch (error) {
     log.error('Failed to fetch product', error);
@@ -113,7 +127,7 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      data: product,
+      data: normalizeProductForResponse(product),
     });
   } catch (error: any) {
     log.error('Failed to update product', error);

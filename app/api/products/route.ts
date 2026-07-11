@@ -5,6 +5,20 @@ import { log } from '@/lib/analytics';
 import { generateUniqueSlug } from '@/lib/slug-utils';
 import { normalizeProductImageList, normalizeProductImagePath } from '@/lib/image-path';
 
+function normalizeProductForResponse(product: any) {
+  const raw = product.toObject ? product.toObject() : product;
+  return {
+    ...raw,
+    images: normalizeProductImageList(raw.images),
+    variants: Array.isArray(raw.variants)
+      ? raw.variants.map((variant: any) => ({
+          ...variant,
+          image: normalizeProductImagePath(variant.image),
+        }))
+      : [],
+  };
+}
+
 /**
  * GET /api/products
  * Fetch all products or filter by category
@@ -33,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: products,
+      data: products.map(normalizeProductForResponse),
     });
   } catch (error) {
     log.error('Failed to fetch products', error);

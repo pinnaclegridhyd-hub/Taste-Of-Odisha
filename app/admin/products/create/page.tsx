@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Plus, X, Image as ImageIcon, Info, Tag, IndianRupee, Package, ShieldCheck, AlertCircle, Weight } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { normalizeProductImagePath } from '@/lib/image-path';
 
 export default function CreateProductPage() {
   const router = useRouter();
@@ -118,10 +119,11 @@ export default function CreateProductPage() {
         images: formData.images
           .split(',')
           .map((url) => url.trim())
+          .map((url) => normalizeProductImagePath(url))
           .filter((url) => url),
         variants: formData.variants
           .filter((variant) => variant.name.trim() && variant.price !== '' && variant.stockQuantity !== '')
-          .map((variant) => ({ name: variant.name.trim(), price: parseFloat(variant.price), stockQuantity: parseInt(variant.stockQuantity), image: variant.image.trim() || undefined })),
+          .map((variant) => ({ name: variant.name.trim(), price: parseFloat(variant.price), stockQuantity: parseInt(variant.stockQuantity), image: normalizeProductImagePath(variant.image) || undefined })),
       };
 
       if (formData.discount.value) {
@@ -315,7 +317,7 @@ export default function CreateProductPage() {
                        <label className="text-xs text-heritage-dark/60">Size / label<input required type="text" value={variant.name} onChange={(e) => updateVariant(index, 'name', e.target.value)} placeholder="500g" className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
                        <label className="text-xs text-heritage-dark/60">Price (₹)<input required min="0" type="number" value={variant.price} onChange={(e) => updateVariant(index, 'price', e.target.value)} className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
                        <label className="text-xs text-heritage-dark/60">Stock<input required min="0" type="number" value={variant.stockQuantity} onChange={(e) => updateVariant(index, 'stockQuantity', e.target.value)} className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
-                       <label className="text-xs text-heritage-dark/60">Optional image URL<input type="url" value={variant.image} onChange={(e) => updateVariant(index, 'image', e.target.value)} placeholder="https://..." className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
+                       <label className="text-xs text-heritage-dark/60">Optional image URL or public path<input type="text" value={variant.image} onChange={(e) => updateVariant(index, 'image', e.target.value)} placeholder="/TASTE OF ODISHA/... or https://..." className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
                        <button type="button" onClick={() => removeVariant(index)} className="mb-0.5 p-3 text-heritage-red hover:bg-heritage-red/5 rounded-lg" aria-label="Remove size"><X className="w-4 h-4" /></button>
                      </div>
                    ))}
@@ -391,7 +393,7 @@ export default function CreateProductPage() {
                     value={formData.images}
                     onChange={handleInputChange}
                     rows={3}
-                    placeholder="https://example.com/art1.jpg, https://example.com/art2.jpg"
+                    placeholder="/TASTE OF ODISHA/.../file.png, https://example.com/art1.jpg"
                     className="w-full px-6 py-4 bg-heritage-bone/30 border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium"
                   />
                 </div>

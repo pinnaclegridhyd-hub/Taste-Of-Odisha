@@ -3,6 +3,21 @@ import Product from '@/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
 import { validateAdminKey } from '@/lib/middleware';
 import { log } from '@/lib/analytics';
+import { normalizeProductImageList, normalizeProductImagePath } from '@/lib/image-path';
+
+function normalizeProductForResponse(product: any) {
+  const raw = product.toObject ? product.toObject() : product;
+  return {
+    ...raw,
+    images: normalizeProductImageList(raw.images),
+    variants: Array.isArray(raw.variants)
+      ? raw.variants.map((variant: any) => ({
+          ...variant,
+          image: normalizeProductImagePath(variant.image),
+        }))
+      : [],
+  };
+}
 
 /**
  * GET /api/admin/products
@@ -27,13 +42,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
       }
       log.api('Admin fetched single product', { id });
-      return NextResponse.json({ success: true, data: product });
+      return NextResponse.json({ success: true, data: normalizeProductForResponse(product) });
     }
 
     const products = await Product.find().sort({ createdAt: -1 });
     log.api('Admin fetched products', { count: products.length });
 
-    return NextResponse.json({ success: true, data: products });
+    return NextResponse.json({ success: true, data: products.map(normalizeProductForResponse) });
   } catch (error) {
     log.error('Admin failed to fetch products', error);
     return NextResponse.json(

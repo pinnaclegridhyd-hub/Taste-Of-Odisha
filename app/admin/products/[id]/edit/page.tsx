@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Save, Plus, X, Image as ImageIcon, Info, Tag, IndianRupee, Package, ShieldCheck, AlertCircle } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { getDisplayImageUrl } from '@/lib/image-url';
+import { normalizeProductImageList, normalizeProductImagePath } from '@/lib/image-path';
 
 const EditProductPage = () => {
   const router = useRouter();
@@ -73,8 +74,14 @@ const EditProductPage = () => {
       if (data.success) {
         setFormData({
            ...data.data,
+           images: normalizeProductImageList(data.data.images),
            weight: data.data.weight || '',
-           variants: data.data.variants || [],
+           variants: Array.isArray(data.data.variants)
+             ? data.data.variants.map((variant: any) => ({
+                 ...variant,
+                 image: normalizeProductImagePath(variant.image),
+               }))
+             : [],
           discount: data.data.discount || { type: 'percentage', value: 0 },
         });
       } else {
@@ -111,7 +118,7 @@ const EditProductPage = () => {
     if (newImageUrl.trim()) {
       setFormData(prev => ({
         ...prev,
-        images: [...prev.images, newImageUrl.trim()]
+        images: [...prev.images, normalizeProductImagePath(newImageUrl)]
       }));
       setNewImageUrl('');
     }
@@ -393,7 +400,7 @@ const EditProductPage = () => {
                 <div className="flex flex-col md:flex-row gap-4">
                   <input
                     type="text"
-                    placeholder="External Image URL (https://...)"
+                    placeholder="/TASTE OF ODISHA/... or https://..."
                     value={newImageUrl}
                     onChange={(e) => setNewImageUrl(e.target.value)}
                     className="flex-1 px-6 py-4 bg-heritage-bone/30 border border-heritage-dark/5 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm"
@@ -436,7 +443,7 @@ const EditProductPage = () => {
                     <label className="text-xs text-heritage-dark/60">Size / label<input required type="text" value={variant.name} onChange={(e) => updateVariant(index, 'name', e.target.value)} placeholder="500g" className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
                     <label className="text-xs text-heritage-dark/60">Price (₹)<input required min="0" type="number" value={variant.price} onChange={(e) => updateVariant(index, 'price', e.target.value)} className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
                     <label className="text-xs text-heritage-dark/60">Stock<input required min="0" type="number" value={variant.stockQuantity} onChange={(e) => updateVariant(index, 'stockQuantity', e.target.value)} className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
-                    <label className="text-xs text-heritage-dark/60">Optional image URL<input type="url" value={variant.image || ''} onChange={(e) => updateVariant(index, 'image', e.target.value)} placeholder="https://..." className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
+                    <label className="text-xs text-heritage-dark/60">Optional image URL or public path<input type="text" value={variant.image || ''} onChange={(e) => updateVariant(index, 'image', e.target.value)} placeholder="/TASTE OF ODISHA/... or https://..." className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-heritage-dark/10" /></label>
                     <button type="button" onClick={() => removeVariant(index)} className="mb-0.5 p-3 text-heritage-red hover:bg-heritage-red/5 rounded-lg" aria-label="Remove size"><X className="w-4 h-4" /></button>
                   </div>
                 ))}
