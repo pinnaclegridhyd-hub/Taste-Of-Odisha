@@ -102,21 +102,30 @@ export async function POST(request: NextRequest) {
     // Determine the amount to be paid now via Razorpay
     const paymentAmountNow = paymentMethod === 'cod' ? COD_ADVANCE_AMOUNT : total;
 
-    // Create Razorpay order
+    // Create Razorpay order (or mock it if the amount is zero, e.g. 100% off coupon)
     let razorpayOrder;
-    try {
-      razorpayOrder = await createRazorpayOrder(
-        paymentAmountNow,
-        orderId,
-        undefined,
-        phoneNumber
-      );
-    } catch (err) {
-      log.error('Failed to create Razorpay order', err);
-      return NextResponse.json(
-        { error: 'Failed to process payment. Please try again.' },
-        { status: 500 }
-      );
+    if (paymentAmountNow <= 0) {
+      razorpayOrder = {
+        id: `mock_order_free_${Math.random().toString(36).substring(2, 10)}`,
+        amount: 0,
+        currency: 'INR',
+        status: 'created'
+      };
+    } else {
+      try {
+        razorpayOrder = await createRazorpayOrder(
+          paymentAmountNow,
+          orderId,
+          undefined,
+          phoneNumber
+        );
+      } catch (err) {
+        log.error('Failed to create Razorpay order', err);
+        return NextResponse.json(
+          { error: 'Failed to process payment. Please try again.' },
+          { status: 500 }
+        );
+      }
     }
 
     // Create order in database using direct collection access to bypass cached middlewares

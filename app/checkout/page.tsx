@@ -24,6 +24,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [couponData, setCouponData] = useState<any>(null);
   const [couponCode, setCouponCode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online');
 
@@ -66,6 +67,25 @@ export default function CheckoutPage() {
           };
         }).filter(Boolean);
         setCartItems(products);
+
+        // Fetch exact backend pricing breakdown if a coupon is applied
+        const savedCoupon = localStorage.getItem('appliedCoupon');
+        if (savedCoupon) {
+          setCouponCode(savedCoupon);
+          try {
+            const valRes = await fetch('/api/validate-coupon', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ items: cart.items, couponCode: savedCoupon })
+            });
+            if (valRes.ok) {
+              const valData = await valRes.json();
+              setCouponData(valData.data);
+            }
+          } catch (e) {
+            console.error('Failed to validate coupon on checkout load:', e);
+          }
+        }
       } catch (err) {
         setError('Failed to load checkout data');
       } finally {
@@ -73,25 +93,16 @@ export default function CheckoutPage() {
       }
     };
     fetchCheckoutDetails();
-
-    const savedCoupon = localStorage.getItem('appliedCoupon');
-    if (savedCoupon) {
-      setCouponCode(savedCoupon);
-    }
   }, [router]);
 
   const subtotal = cartItems.reduce((sum, item) => {
     return sum + (getEffectivePrice(item.effectiveBasePrice, item.discount) * item.quantity);
   }, 0);
-  const deliveryCharge = subtotal >= 999 ? 0 : 99;
 
-  // Coupon estimation on client
-  const couponRates: Record<string, number> = {
-    'ODISHA10': 0.1,
-    'HERITAGE20': 0.2,
-  };
-  const couponDiscount = couponRates[couponCode.toUpperCase()] ? subtotal * couponRates[couponCode.toUpperCase()] : 0;
-  const estimatedTotal = Math.max(0, subtotal - couponDiscount + deliveryCharge);
+  // If couponData is loaded, use it; otherwise fallback to client estimation
+  const deliveryCharge = couponData ? couponData.deliveryCharge : (subtotal >= 999 ? 0 : 99);
+  const couponDiscount = couponData ? couponData.discount : 0;
+  const estimatedTotal = couponData ? couponData.total : Math.max(0, subtotal + deliveryCharge);
   const isCodAllowed = estimatedTotal > COD_ADVANCE_AMOUNT;
 
   // Auto-switch to online if total falls below threshold
