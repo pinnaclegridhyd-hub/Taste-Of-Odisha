@@ -1,18 +1,19 @@
 export function getDisplayImageUrl(src?: string): string {
   if (!src) return '/images/logo-too.jpeg';
   const normalized = src.trim().replace(/\\/g, '/');
-  
+
   if (/^https?:\/\//i.test(normalized)) {
+    let host = '';
     try {
       const url = new URL(normalized);
-      const host = url.hostname.toLowerCase();
+      host = url.hostname.toLowerCase();
       const isLocal = host === 'localhost' ||
-                      host === '127.0.0.1' ||
-                      host === '0.0.0.0' ||
-                      host === '::1' ||
-                      host.endsWith('.local') ||
-                      /^10\.|^127\.|^169\.254\.|^192\.168\.|^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
-      
+        host === '127.0.0.1' ||
+        host === '0.0.0.0' ||
+        host === '::1' ||
+        host.endsWith('.local') ||
+        /^10\.|^127\.|^169\.254\.|^192\.168\.|^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+
       if (isLocal) {
         let path = url.pathname + url.search + url.hash;
         try {
@@ -27,11 +28,20 @@ export function getDisplayImageUrl(src?: string): string {
       // Ignore URL parsing errors
     }
 
-    return `/api/image-proxy?url=${encodeURIComponent(normalized)}`;
+    // Handle Google Drive links to ensure they use the direct download/content endpoint
+    let targetUrl = normalized;
+    if (host && host.includes('drive.google.com')) {
+      const match = normalized.match(/\/file\/d\/([^\/]+)/) || normalized.match(/[?&]id=([^&]+)/);
+      if (match && match[1]) {
+        targetUrl = `https://drive.google.com/uc?export=download&id=${match[1]}`;
+      }
+    }
+
+    return `/api/image-proxy?url=${encodeURIComponent(targetUrl)}`;
   }
-  
+
   const directPath = normalized.startsWith('/') ? normalized : `/${normalized}`;
-  
+
   // Safe decode and then encodeURI to prevent double encoding
   let decodedPath = directPath;
   try {
@@ -43,6 +53,6 @@ export function getDisplayImageUrl(src?: string): string {
       // Ignore errors
     }
   }
-  
+
   return encodeURI(decodedPath);
 }

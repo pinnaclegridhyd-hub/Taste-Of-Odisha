@@ -15,6 +15,9 @@ export interface PricingBreakdown {
   couponApplied?: string;
 }
 
+import { connectDB } from './db';
+import Coupon from '@/models/Coupon';
+
 export const VALID_COUPONS: Record<string, number> = {
   'ODISHA10': 0.1,
   'HERITAGE20': 0.2,
@@ -54,8 +57,29 @@ export async function calculateCartPrice(
   
   const normalizedCoupon = couponCode?.trim().toUpperCase();
   let discount = 0;
-  if (normalizedCoupon && VALID_COUPONS[normalizedCoupon]) {
-    discount = formatPrice(subtotal * VALID_COUPONS[normalizedCoupon]);
+  if (normalizedCoupon) {
+    let couponDiscountRate = 0;
+    try {
+      await connectDB();
+      const dbCoupon = await Coupon.findOne({ code: normalizedCoupon, isActive: true });
+      if (dbCoupon) {
+        // Verify expiry
+        if (!dbCoupon.expiresAt || new Date(dbCoupon.expiresAt) > new Date()) {
+          couponDiscountRate = dbCoupon.discountPercentage;
+        }
+      }
+    } catch (dbError) {
+      console.error('[PRICING] Failed to fetch coupon from DB:', dbError);
+    }
+
+    // Fallback to static coupons if not found/invalid in DB
+    if (couponDiscountRate === 0 && VALID_COUPONS[normalizedCoupon]) {
+      couponDiscountRate = VALID_COUPONS[normalizedCoupon];
+    }
+
+    if (couponDiscountRate > 0) {
+      discount = formatPrice(subtotal * couponDiscountRate);
+    }
   }
 
   const deliveryCharge = getDeliveryCharge(subtotal - discount);
