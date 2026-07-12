@@ -38,7 +38,7 @@ export async function calculateCartPrice(
     const productId = String(item.productId);
     const product = products.get(productId);
     if (!product) {
-      throw new Error(`Product ${productId} not found`);
+      throw new Error(`Product not found. Your cart might contain outdated items from a previous session. Please clear your cart and try again.`);
     }
 
     let basePrice = product.price;
@@ -82,7 +82,7 @@ export async function calculateCartPrice(
     }
   }
 
-  const deliveryCharge = getDeliveryCharge(subtotal - discount);
+  const deliveryCharge = getDeliveryCharge(subtotal - discount, subtotal);
   const total = formatPrice(subtotal - discount + deliveryCharge);
 
   return {

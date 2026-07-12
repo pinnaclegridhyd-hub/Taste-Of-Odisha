@@ -14,6 +14,7 @@ import {
   ToggleLeft,
   ToggleRight,
   Sparkles,
+  Pencil,
 } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
@@ -35,8 +36,9 @@ export default function AdminCouponsPage() {
   const [success, setSuccess] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // Form state
+  // Form states
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
   const [formData, setFormData] = useState({
     code: '',
     discountPercentage: '', // will convert to number e.g. 20 -> 0.20
@@ -130,6 +132,62 @@ export default function AdminCouponsPage() {
     }
   };
 
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCoupon) return;
+    setError('');
+    setSuccess('');
+
+    if (!formData.code.trim()) {
+      setError('Coupon code is required');
+      return;
+    }
+
+    const pct = parseFloat(formData.discountPercentage);
+    if (isNaN(pct) || pct <= 0 || pct > 100) {
+      setError('Discount percentage must be a number between 1 and 100');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const discountPercentage = pct / 100;
+      const res = await fetch('/api/admin/coupons', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAdminKey()}`,
+        },
+        body: JSON.stringify({
+          id: editingCoupon._id,
+          code: formData.code.trim().toUpperCase(),
+          discountPercentage,
+          expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : null,
+          isActive: formData.isActive,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update coupon');
+      }
+
+      setSuccess(`Coupon ${data.data.code} updated successfully!`);
+      setFormData({
+        code: '',
+        discountPercentage: '',
+        expiresAt: '',
+        isActive: true,
+      });
+      setEditingCoupon(null);
+      await fetchCoupons();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleDelete = async (id: string, code: string) => {
     if (!confirm(`Are you sure you want to delete coupon ${code}?`)) return;
     setError('');
@@ -146,6 +204,17 @@ export default function AdminCouponsPage() {
     } catch (err: any) {
       setError(err.message);
     }
+  };
+
+  const startEdit = (coupon: Coupon) => {
+    setEditingCoupon(coupon);
+    setShowCreateForm(false);
+    setFormData({
+      code: coupon.code,
+      discountPercentage: (coupon.discountPercentage * 100).toFixed(0),
+      expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().split('T')[0] : '',
+      isActive: coupon.isActive,
+    });
   };
 
   if (loading) {
@@ -175,11 +244,18 @@ export default function AdminCouponsPage() {
               </h1>
             </div>
             <button
-              onClick={() => setShowCreateForm(!showCreateForm)}
+              onClick={() => {
+                if (editingCoupon) {
+                  setEditingCoupon(null);
+                  setFormData({ code: '', discountPercentage: '', expiresAt: '', isActive: true });
+                } else {
+                  setShowCreateForm(!showCreateForm);
+                }
+              }}
               className="btn-primary py-3.5 px-6 flex items-center gap-2"
             >
-              {showCreateForm ? 'View Coupons' : 'Create New Coupon'}
-              {!showCreateForm && <Plus className="w-4 h-4" />}
+              {editingCoupon ? 'Cancel Edit' : showCreateForm ? 'View Coupons' : 'Create New Coupon'}
+              {!showCreateForm && !editingCoupon && <Plus className="w-4 h-4" />}
             </button>
           </div>
         </div>
@@ -201,11 +277,13 @@ export default function AdminCouponsPage() {
           </div>
         )}
 
-        {/* Creation Form */}
-        {showCreateForm ? (
+        {/* Edit / Creation Form */}
+        {showCreateForm || editingCoupon ? (
           <div className="bg-white rounded-xl shadow-sm border border-heritage-dark/5 p-8 max-w-2xl mx-auto mb-12 animate-fade-up">
-            <h2 className="text-xl font-serif font-bold text-heritage-dark italic mb-6">Create New Coupon</h2>
-            <form onSubmit={handleCreate} className="space-y-6">
+            <h2 className="text-xl font-serif font-bold text-heritage-dark italic mb-6">
+              {editingCoupon ? `Edit Coupon: ${editingCoupon.code}` : 'Create New Coupon'}
+            </h2>
+            <form onSubmit={editingCoupon ? handleUpdate : handleCreate} className="space-y-6">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-heritage-dark/60 mb-2">
                   Coupon Code
@@ -275,11 +353,15 @@ export default function AdminCouponsPage() {
                   disabled={saving}
                   className="btn-primary py-3 px-8 flex-1"
                 >
-                  {saving ? 'Creating...' : 'Create Coupon'}
+                  {saving ? 'Saving...' : editingCoupon ? 'Update Coupon' : 'Create Coupon'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowCreateForm(false)}
+                  onClick={() => {
+                    setEditingCoupon(null);
+                    setShowCreateForm(false);
+                    setFormData({ code: '', discountPercentage: '', expiresAt: '', isActive: true });
+                  }}
                   className="px-6 py-3 border border-heritage-dark/10 rounded-xl hover:bg-heritage-bone/20 text-xs font-bold uppercase tracking-wider transition-all"
                 >
                   Cancel
@@ -355,13 +437,22 @@ export default function AdminCouponsPage() {
                             {new Date(coupon.createdAt).toLocaleDateString()}
                           </td>
                           <td className="p-6 text-right">
-                            <button
-                              onClick={() => handleDelete(coupon._id, coupon.code)}
-                              className="text-heritage-red hover:bg-heritage-red/5 p-2 rounded-lg transition-colors inline-flex items-center justify-center"
-                              title="Delete Coupon"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => startEdit(coupon)}
+                                className="text-heritage-dark/60 hover:text-primary hover:bg-heritage-bone/40 p-2 rounded-lg transition-colors inline-flex items-center justify-center"
+                                title="Edit Coupon"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(coupon._id, coupon.code)}
+                                className="text-heritage-red hover:bg-heritage-red/5 p-2 rounded-lg transition-colors inline-flex items-center justify-center"
+                                title="Delete Coupon"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );

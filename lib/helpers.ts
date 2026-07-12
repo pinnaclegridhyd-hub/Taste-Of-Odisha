@@ -63,11 +63,17 @@ export function getEffectivePrice(
 
 /**
  * Calculate delivery charge
- * Free if total >= 499, else fixed charge (e.g., ₹60)
+ * Free if original subtotal >= 499 OR if discounted total is 0 (fully covered by coupon)
+ * @param discountedSubtotal - subtotal after coupon discount
+ * @param originalSubtotal - subtotal before any coupon discount (used for threshold check)
  */
-export function getDeliveryCharge(subtotal: number): number {
+export function getDeliveryCharge(discountedSubtotal: number, originalSubtotal?: number): number {
   const FREE_DELIVERY_THRESHOLD = 499;
   const DELIVERY_CHARGE = 60;
 
-  return subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE;
+  // Free shipping if fully discounted (100% coupon) or order meets threshold
+  if (discountedSubtotal <= 0) return 0;
+
+  const checkSubtotal = originalSubtotal !== undefined ? originalSubtotal : discountedSubtotal;
+  return checkSubtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE;
 }

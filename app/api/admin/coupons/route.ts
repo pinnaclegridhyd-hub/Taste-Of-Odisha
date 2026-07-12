@@ -82,3 +82,67 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+/**
+ * PUT /api/admin/coupons
+ * Update an existing coupon
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    const authHeader = request.headers.get('authorization');
+
+    if (!validateAdminKey(authHeader ?? undefined)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectDB();
+
+    const body = await request.json();
+    const { id, code, discountPercentage, expiresAt, isActive } = body;
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Coupon ID is required' }, { status: 400 });
+    }
+
+    const updateData: any = {};
+    if (code !== undefined) {
+      updateData.code = code.trim().toUpperCase();
+      // Check if duplicate code exists on other coupons
+      const duplicate = await Coupon.findOne({ code: updateData.code, _id: { $ne: id } });
+      if (duplicate) {
+        return NextResponse.json({ success: false, error: 'Coupon code already exists' }, { status: 400 });
+      }
+    }
+
+    if (discountPercentage !== undefined) {
+      if (typeof discountPercentage !== 'number' || discountPercentage < 0 || discountPercentage > 1) {
+        return NextResponse.json({ success: false, error: 'Discount must be a number between 0 and 1' }, { status: 400 });
+      }
+      updateData.discountPercentage = discountPercentage;
+    }
+
+    if (expiresAt !== undefined) {
+      updateData.expiresAt = expiresAt ? new Date(expiresAt) : null;
+    }
+
+    if (isActive !== undefined) {
+      updateData.isActive = isActive;
+    }
+
+    const updated = await Coupon.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+
+    if (!updated) {
+      return NextResponse.json({ success: false, error: 'Coupon not found' }, { status: 404 });
+    }
+
+    log.api('Admin updated coupon', { id, code: updated.code });
+
+    return NextResponse.json({ success: true, data: updated });
+  } catch (error: any) {
+    log.error('Admin failed to update coupon', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to update coupon' },
+      { status: 500 }
+    );
+  }
+}
