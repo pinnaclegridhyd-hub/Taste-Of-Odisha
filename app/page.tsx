@@ -211,8 +211,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
 
       {/* 06. Professional Final Call */}
       <section className="py-12 bg-heritage-bone">

@@ -20,6 +20,7 @@ import {
   Info,
 } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { getDisplayImageUrl } from '@/lib/image-url';
 
 interface Banner {
   _id: string;
@@ -447,7 +448,7 @@ export default function AdminBannersPage() {
                   </span>
                   <div className="relative w-full aspect-[21/9] rounded-xl overflow-hidden bg-heritage-bone border border-heritage-dark/5">
                     <Image
-                      src={formData.imageUrl}
+                      src={getDisplayImageUrl(formData.imageUrl)}
                       alt="Banner Preview"
                       fill
                       className="object-cover"
@@ -628,7 +629,7 @@ export default function AdminBannersPage() {
                       {editData.imageUrl && (
                         <div className="relative w-full aspect-[21/9] rounded-xl overflow-hidden bg-heritage-bone border border-heritage-dark/5">
                           <Image
-                            src={editData.imageUrl}
+                            src={getDisplayImageUrl(editData.imageUrl)}
                             alt="Banner Preview"
                             fill
                             className="object-cover"
@@ -664,7 +665,7 @@ export default function AdminBannersPage() {
                       {/* Image Thumbnail */}
                       <div className="lg:col-span-4 relative aspect-[21/9] lg:aspect-auto bg-heritage-bone overflow-hidden">
                         <Image
-                          src={banner.imageUrl}
+                          src={getDisplayImageUrl(banner.imageUrl)}
                           alt={banner.title || 'Banner'}
                           fill
                           className="object-cover"

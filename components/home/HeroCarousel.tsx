@@ -4,7 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useHeroCarousel } from '@/hooks/useHeroCarousel';
-import { heroSlides } from './heroSlides';
+import { heroSlides, HeroSlide } from './heroSlides';
+import { useState, useEffect } from 'react';
+import { getDisplayImageUrl } from '@/lib/image-url';
 
 /**
  * HeroCarousel
@@ -31,7 +33,42 @@ export default function HeroCarousel() {
     onKeyDown,
   } = useHeroCarousel();
 
-  if (heroSlides.length === 0) return null;
+  const [slides, setSlides] = useState<HeroSlide[]>(heroSlides);
+
+  useEffect(() => {
+    fetch('/api/banners')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data && data.data.length > 0) {
+          const dynamicSlides: HeroSlide[] = data.data.map((b: any) => {
+            // Try to split the title to mimic the 'highlightText' feature if there are multiple words,
+            // or just put it all in the heading.
+            const titleParts = (b.title || '').split(' ');
+            let heading = b.title || 'Taste of Odisha';
+            let highlightText = '';
+            if (titleParts.length > 2) {
+              highlightText = titleParts.splice(-2).join(' ');
+              heading = titleParts.join(' ');
+            }
+            
+            return {
+              id: b._id,
+              image: b.imageUrl,
+              eyebrowText: 'Featured',
+              heading: heading,
+              highlightText: highlightText,
+              description: b.subtitle || '',
+              ctaLabel: b.ctaText || 'Shop Now',
+              ctaHref: b.linkUrl || '/products',
+            };
+          });
+          setSlides(dynamicSlides);
+        }
+      })
+      .catch((err) => console.error('Failed to load dynamic banners:', err));
+  }, []);
+
+  if (slides.length === 0) return null;
 
   return (
     <div
@@ -45,23 +82,23 @@ export default function HeroCarousel() {
       {/* ── Embla viewport ── */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
-          {heroSlides.map((slide, index) => (
+          {slides.map((slide, index) => (
             <div
               key={slide.id}
               className="relative flex-[0_0_100%] min-w-0 h-[380px] md:h-[400px] lg:h-[520px]"
               role="group"
               aria-roledescription="slide"
-              aria-label={`Slide ${index + 1} of ${heroSlides.length}: ${slide.heading}`}
+              aria-label={`Slide ${index + 1} of ${slides.length}: ${slide.heading}`}
             >
               {/* ── Background image ── */}
               <Image
-                src={
+                src={getDisplayImageUrl(
                   typeof window !== 'undefined' &&
                   window.innerWidth < 768 &&
                   slide.mobileImage
                     ? slide.mobileImage
                     : slide.image
-                }
+                )}
                 alt={`${slide.heading} ${slide.highlightText}`}
                 fill
                 className="object-cover object-center"
@@ -125,7 +162,7 @@ export default function HeroCarousel() {
       </div>
 
       {/* ── Navigation arrows ── */}
-      {heroSlides.length > 1 && (
+      {slides.length > 1 && (
         <>
           {/* Previous */}
           <button
