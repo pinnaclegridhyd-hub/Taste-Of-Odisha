@@ -63,7 +63,7 @@ export default function AdminOrdersPage() {
         setOrders(
           orders.map((o) =>
             o.orderId === orderId
-              ? { ...o, status: newStatus as any }
+              ? ({ ...o, status: newStatus as any } as any)
               : o
           )
         );
@@ -93,7 +93,7 @@ export default function AdminOrdersPage() {
         setOrders(
           orders.map((o) =>
             o.orderId === orderId
-              ? { ...o, paymentStatus: newPaymentStatus as any, balanceDue: newPaymentStatus === 'fully_paid' ? 0 : o.balanceDue }
+              ? ({ ...o, paymentStatus: newPaymentStatus as any, balanceDue: newPaymentStatus === 'fully_paid' ? 0 : o.balanceDue } as any)
               : o
           )
         );
@@ -288,7 +288,10 @@ export default function AdminOrdersPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                        {(order.items ?? []).map((item, idx) => (
                           <div key={idx} className="flex justify-between items-center bg-heritage-bone/30 p-4 rounded-lg border border-heritage-dark/5">
-                             <span className="text-[11px] font-bold text-heritage-dark uppercase tracking-widest truncate flex-1 pr-4">{item.name}</span>
+                             <span className="text-[11px] font-bold text-heritage-dark uppercase tracking-widest truncate flex-1 pr-4">
+                               {item.name}
+                               {item.variantName ? ` — Size: ${item.variantName}` : ''}
+                             </span>
                              <span className="text-[10px] font-bold text-primary">QTY {item.quantity}</span>
                           </div>
                        ))}
@@ -296,13 +299,13 @@ export default function AdminOrdersPage() {
                   </div>
 
                   {/* Footer */}
-                  <div className="mt-12 pt-8 border-t border-heritage-dark/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] font-bold uppercase tracking-[0.3em] text-heritage-dark/20">
-                     <div className="flex gap-8">
-                        <span>RZP: {order.razorpayOrderId}</span>
-                        {order.razorpayPaymentId && <span>TXN: {order.razorpayPaymentId}</span>}
+                  <div className="mt-12 pt-8 border-t border-heritage-dark/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold uppercase tracking-wider">
+                     <div className="flex gap-8 text-primary">
+                        <span>RZP: <span className="text-heritage-dark opacity-75 select-all">{order.razorpayOrderId}</span></span>
+                        {order.razorpayPaymentId && <span>TXN: <span className="text-heritage-dark opacity-75 select-all">{order.razorpayPaymentId}</span></span>}
                      </div>
-                     <div className="flex items-center gap-2">
-                        <Clock className="w-3 h-3" />
+                     <div className="flex items-center gap-2 text-heritage-dark/60">
+                        <Clock className="w-3.5 h-3.5 text-primary" />
                         <span>{new Date(order.createdAt).toLocaleString()}</span>
                      </div>
                   </div>

@@ -16,7 +16,8 @@ import {
   Award,
   Users,
   ChevronRight,
-  Heart
+  Heart,
+  Share2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import TrustSignals from '@/components/TrustSignals';
@@ -167,6 +168,33 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const currentStock = selectedVariant ? selectedVariant.stockQuantity : product.stockQuantity;
   const isOutOfStock = currentStock <= 0;
 
+  const handleShare = async () => {
+    if (!product) return;
+    const shareText = `Check out ${product.name} on Taste Of Odisha - Authentic Heritage Product! Price: ₹${effectivePrice}`;
+    const shareData = {
+      title: product.name,
+      text: shareText,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Error sharing:', err);
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard!');
+      } catch (err) {
+        toast.error('Failed to copy link');
+      }
+    }
+  };
+
   return (
     <main className="min-h-screen bg-secondary pb-48 pt-32 overflow-x-hidden">
       <div className="container-sanctuary">
@@ -208,6 +236,15 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   <div className="w-full h-full flex items-center justify-center text-heritage-dark/20 text-[10px] uppercase font-bold tracking-widest">Loading...</div>
                 )}
               </div>
+
+              {/* Share Button */}
+              <button 
+                onClick={handleShare}
+                className="absolute top-4 right-4 z-20 w-10 h-10 bg-white hover:bg-heritage-bone text-heritage-dark hover:text-primary rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all active:scale-95 border border-heritage-dark/5"
+                title="Share product"
+              >
+                <Share2 className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
