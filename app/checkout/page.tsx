@@ -15,7 +15,7 @@ import {
   Lock,
   Zap
 } from 'lucide-react';
-import { getEffectivePrice } from '@/lib/helpers';
+import { getEffectivePrice, getDeliveryCharge } from '@/lib/helpers';
 import { COD_ADVANCE_AMOUNT } from '@/lib/constants';
 
 export default function CheckoutPage() {
@@ -100,7 +100,7 @@ export default function CheckoutPage() {
   }, 0);
 
   // If couponData is loaded, use it; otherwise fallback to client estimation
-  const deliveryCharge = couponData ? couponData.deliveryCharge : (subtotal >= 999 ? 0 : 99);
+  const deliveryCharge = couponData ? couponData.deliveryCharge : getDeliveryCharge(subtotal);
   const couponDiscount = couponData ? couponData.discount : 0;
   const estimatedTotal = couponData ? couponData.total : Math.max(0, subtotal + deliveryCharge);
   const isCodAllowed = estimatedTotal > COD_ADVANCE_AMOUNT;

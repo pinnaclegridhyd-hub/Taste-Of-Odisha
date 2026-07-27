@@ -1,6 +1,7 @@
 import React from 'react';
 import { getDeliveryCharge } from '@/lib/helpers';
 import { ShieldCheck, ArrowRight, Zap } from 'lucide-react';
+import { FREE_DELIVERY_THRESHOLD } from '@/lib/constants';
 
 interface CartSummaryProps {
   subtotal: number;
@@ -15,7 +16,6 @@ const CartSummary: React.FC<CartSummaryProps> = ({
 }) => {
   const deliveryCharge = getDeliveryCharge(subtotal);
   const total = subtotal + deliveryCharge;
-  const FREE_DELIVERY_THRESHOLD = 999;
 
   return (
     <div className="bg-white rounded-xl p-8 lg:p-10 sticky top-32 border border-heritage-dark/5 shadow-sm">

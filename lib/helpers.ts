@@ -1,3 +1,5 @@
+import { FREE_DELIVERY_THRESHOLD, DELIVERY_CHARGE } from './constants';
+
 /**
  * Generate slug from product name
  */
@@ -68,9 +70,6 @@ export function getEffectivePrice(
  * @param originalSubtotal - subtotal before any coupon discount (used for threshold check)
  */
 export function getDeliveryCharge(discountedSubtotal: number, originalSubtotal?: number): number {
-  const FREE_DELIVERY_THRESHOLD = 499;
-  const DELIVERY_CHARGE = 60;
-
   // Free shipping if fully discounted (100% coupon) or order meets threshold
   if (discountedSubtotal <= 0) return 0;
 

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getEffectivePrice } from '@/lib/helpers';
+import { getEffectivePrice, getDeliveryCharge } from '@/lib/helpers';
 import { getDisplayImageUrl } from '@/lib/image-url';
 import { Trash2, Plus, Minus, ShieldCheck, Truck, ShoppingBag, ArrowLeft, Heart, Lock, Zap, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
@@ -104,7 +104,7 @@ export default function CartPage() {
   };
 
   const subtotal = cartItems.reduce((sum, p) => sum + getEffectivePrice(p.effectiveBasePrice, p.discount) * p.cartQuantity, 0);
-  const deliveryCharge = subtotal >= 999 ? 0 : 99;
+  const deliveryCharge = getDeliveryCharge(subtotal);
 
   if (loading) {
     return (
